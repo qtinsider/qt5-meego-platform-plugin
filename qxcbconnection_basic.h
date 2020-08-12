@@ -99,8 +99,6 @@ public:
     bool hasXinerama() const { return m_hasXinerama; }
     bool hasBigRequest() const;
 
-    bool isAtLeastXI21() const { return m_xi2Enabled && m_xi2Minor >= 1; }
-    bool isAtLeastXI22() const { return m_xi2Enabled && m_xi2Minor >= 2; }
     bool isXIEvent(xcb_generic_event_t *event) const;
     bool isXIType(xcb_generic_event_t *event, uint16_t type) const;
 
@@ -143,7 +141,6 @@ private:
     QPair<int, int> m_xrenderVersion;
 
     bool m_xi2Enabled = false;
-    int m_xi2Minor = -1;
     int m_xiOpCode = -1;
     uint32_t m_xinputFirstEvent = 0;
 

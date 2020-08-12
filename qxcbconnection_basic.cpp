@@ -375,7 +375,6 @@ void QXcbBasicConnection::initializeXInput2()
     m_xi2Enabled = true;
     m_xiOpCode = reply->major_opcode;
     m_xinputFirstEvent = reply->first_event;
-    m_xi2Minor = xinputQuery->minor_version;
 }
 
 void QXcbBasicConnection::initializeXShape()

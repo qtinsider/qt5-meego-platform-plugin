@@ -45,9 +45,6 @@
 #include "qxcbkeyboard.h"
 #include "qxcbwindow.h"
 #include "qxcbclipboard.h"
-#if QT_CONFIG(draganddrop)
-#include "qxcbdrag.h"
-#endif
 #include "qxcbwmsupport.h"
 #include "qxcbnativeinterface.h"
 #include "qxcbintegration.h"
@@ -100,7 +97,6 @@ QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGra
 
     if (hasXInput2()) {
         xi2SetupDevices();
-        xi2SelectStateEvents();
     }
 
     m_wmSupport.reset(new QXcbWMSupport(this));
@@ -163,12 +159,12 @@ void QXcbConnection::removeWindowEventListener(xcb_window_t id)
 
 QXcbWindowEventListener *QXcbConnection::windowEventListenerFromId(xcb_window_t id)
 {
-    return m_mapper.value(id, 0);
+    return m_mapper.value(id, nullptr);
 }
 
 QXcbWindow *QXcbConnection::platformWindowFromId(xcb_window_t id)
 {
-    QXcbWindowEventListener *listener = m_mapper.value(id, 0);
+    QXcbWindowEventListener *listener = m_mapper.value(id, nullptr);
     if (listener)
         return listener->toWindow();
     return nullptr;
@@ -576,11 +572,11 @@ void QXcbConnection::handleXcbEvent(xcb_generic_event_t *event)
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_client_message_event_t, window, handleClientMessageEvent);
     }
     case XCB_ENTER_NOTIFY:
-        if (hasXInput2() && !xi2MouseEventsDisabled())
+        if (hasXInput2())
             break;
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_enter_notify_event_t, event, handleEnterNotifyEvent);
     case XCB_LEAVE_NOTIFY:
-        if (hasXInput2() && !xi2MouseEventsDisabled())
+        if (hasXInput2())
             break;
         m_keyboard->updateXKBStateFromCore(reinterpret_cast<xcb_leave_notify_event_t *>(event)->state);
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_leave_notify_event_t, event, handleLeaveNotifyEvent);
@@ -805,7 +801,7 @@ xcb_window_t QXcbConnection::clientLeader()
 
 
         QXcbWindow::setWindowTitle(connection(), m_clientLeader,
-                                   QStringLiteral("Qt Client Leader Window"));
+                                   QGuiApplication::applicationDisplayName());
 
         xcb_change_property(xcb_connection(),
                             XCB_PROP_MODE_REPLACE,
@@ -871,21 +867,6 @@ bool QXcbConnection::compressEvent(xcb_generic_event_t *event) const
                 return isXIType(next, XCB_INPUT_MOTION);
             });
         }
-
-        // compress XI_TouchUpdate for the same touch point id
-        if (isXIType(event, XCB_INPUT_TOUCH_UPDATE)) {
-            auto touchUpdateEvent = reinterpret_cast<xcb_input_touch_update_event_t *>(event);
-            uint32_t id = touchUpdateEvent->detail % INT_MAX;
-
-            return m_eventQueue->peek(QXcbEventQueue::PeekRetainMatch,
-                                      [this, &id](xcb_generic_event_t *next, int) {
-                if (!isXIType(next, XCB_INPUT_TOUCH_UPDATE))
-                    return false;
-                auto touchUpdateNextEvent = reinterpret_cast<xcb_input_touch_update_event_t *>(next);
-                return id == touchUpdateNextEvent->detail % INT_MAX;
-            });
-        }
-
         return false;
     }
 
@@ -921,13 +902,8 @@ bool QXcbConnection::isUserInputEvent(xcb_generic_event_t *event) const
         isInputEvent = isXIType(event, XCB_INPUT_BUTTON_PRESS) ||
                        isXIType(event, XCB_INPUT_BUTTON_RELEASE) ||
                        isXIType(event, XCB_INPUT_MOTION) ||
-                       isXIType(event, XCB_INPUT_TOUCH_BEGIN) ||
-                       isXIType(event, XCB_INPUT_TOUCH_UPDATE) ||
-                       isXIType(event, XCB_INPUT_TOUCH_END) ||
                        isXIType(event, XCB_INPUT_ENTER) ||
-                       isXIType(event, XCB_INPUT_LEAVE) ||
-                       // wacom driver's way of reporting tool proximity
-                       isXIType(event, XCB_INPUT_PROPERTY);
+                       isXIType(event, XCB_INPUT_LEAVE);
     }
     if (isInputEvent)
         return true;

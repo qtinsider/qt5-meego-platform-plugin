@@ -194,37 +194,13 @@ public:
         _XEMBED_INFO,
 
         // XInput2
-        ButtonLeft,
-        ButtonMiddle,
-        ButtonRight,
-        ButtonWheelUp,
-        ButtonWheelDown,
-        ButtonHorizWheelLeft,
-        ButtonHorizWheelRight,
         AbsMTPositionX,
         AbsMTPositionY,
         AbsMTTouchMajor,
         AbsMTTouchMinor,
-        AbsMTOrientation,
-        AbsMTPressure,
         AbsMTTrackingID,
+
         MaxContacts,
-        RelX,
-        RelY,
-        // XInput2 tablet
-        AbsX,
-        AbsY,
-        AbsPressure,
-        AbsTiltX,
-        AbsTiltY,
-        AbsWheel,
-        AbsDistance,
-        WacomSerialIDs,
-        INTEGER,
-        RelHorizWheel,
-        RelVertWheel,
-        RelHorizScroll,
-        RelVertScroll,
 
         _XSETTINGS_SETTINGS,
 

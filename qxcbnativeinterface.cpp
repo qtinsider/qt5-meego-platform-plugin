@@ -64,18 +64,22 @@ QT_BEGIN_NAMESPACE
 // return QXcbNativeInterface::ResourceType for the key.
 static int resourceType(const QByteArray &key)
 {
-    static const QByteArray names[] = { // match QXcbNativeInterface::ResourceType
+    static const QByteArray names[] = {
+        // match QXcbNativeInterface::ResourceType
         QByteArrayLiteral("display"),
-        QByteArrayLiteral("connection"), QByteArrayLiteral("screen"),
+        QByteArrayLiteral("connection"),
+        QByteArrayLiteral("screen"),
         QByteArrayLiteral("apptime"),
-        QByteArrayLiteral("appusertime"), QByteArrayLiteral("hintstyle"),
-        QByteArrayLiteral("startupid"), QByteArrayLiteral("traywindow"),
-        QByteArrayLiteral("gettimestamp"), QByteArrayLiteral("x11screen"),
+        QByteArrayLiteral("appusertime"),
+        QByteArrayLiteral("hintstyle"),
+        QByteArrayLiteral("startupid"),
+        QByteArrayLiteral("gettimestamp"),
+        QByteArrayLiteral("x11screen"),
         QByteArrayLiteral("rootwindow"),
-        QByteArrayLiteral("subpixeltype"), QByteArrayLiteral("antialiasingenabled"),
+        QByteArrayLiteral("subpixeltype"),
+        QByteArrayLiteral("antialiasingenabled"),
         QByteArrayLiteral("atspibus"),
         QByteArrayLiteral("compositingenabled"),
-        QByteArrayLiteral("vksurface"),
         QByteArrayLiteral("generatepeekerid"),
         QByteArrayLiteral("removepeekerid"),
         QByteArrayLiteral("peekeventqueue")

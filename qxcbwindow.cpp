@@ -42,7 +42,6 @@
 #include <QtDebug>
 #include <QMetaEnum>
 #include <QScreen>
-#include <QtGui/QIcon>
 #include <QtGui/QRegion>
 #include <QtGui/private/qhighdpiscaling_p.h>
 
@@ -486,9 +485,6 @@ void QXcbWindow::create()
                         32, 2, (void *)data);
 
     if (connection()->hasXInput2()) {
-        if (connection()->xi2MouseEventsDisabled())
-            connection()->xi2SelectDeviceEventsCompatibility(m_window);
-        else
             connection()->xi2SelectDeviceEvents(m_window);
     }
 
@@ -1800,24 +1796,6 @@ void QXcbWindow::handleButtonPressEvent(int event_x, int event_y, int root_x, in
     QPoint local(event_x, event_y);
     QPoint global(root_x, root_y);
 
-    if (isWheel) {
-        if (!connection()->isAtLeastXI21()) {
-            QPoint angleDelta;
-            if (detail == 4)
-                angleDelta.setY(120);
-            else if (detail == 5)
-                angleDelta.setY(-120);
-            else if (detail == 6)
-                angleDelta.setX(120);
-            else if (detail == 7)
-                angleDelta.setX(-120);
-            if (modifiers & Qt::AltModifier)
-                angleDelta = angleDelta.transposed();
-            QWindowSystemInterface::handleWheelEvent(window(), timestamp, local, global, QPoint(), angleDelta, modifiers);
-        }
-        return;
-    }
-
     connection()->setMousePressWindow(this);
 
     handleMouseEvent(timestamp, local, global, modifiers, type, source);
@@ -1851,7 +1829,7 @@ static inline bool doCheckUnGrabAncestor(QXcbConnection *conn)
     */
     if (conn) {
         const bool mouseButtonsPressed = (conn->buttonState() != Qt::NoButton);
-        return mouseButtonsPressed || (conn->hasXInput2() && !conn->xi2MouseEventsDisabled());
+        return mouseButtonsPressed || conn->hasXInput2();
     }
     return true;
 }
@@ -1883,9 +1861,6 @@ void QXcbWindow::handleEnterNotifyEvent(int event_x, int event_y, int root_x, in
 
     if (ignoreEnterEvent(mode, detail, connection()) || connection()->mousePressWindow())
         return;
-
-    // Updates scroll valuators, as user might have done some scrolling outside our X client.
-    connection()->xi2UpdateScrollingDevices();
 
     const QPoint local(event_x, event_y);
     QWindowSystemInterface::handleEnterEvent(window(), local, global);
@@ -1974,15 +1949,6 @@ void QXcbWindow::handleXIMouseEvent(xcb_ge_event_t *event, Qt::MouseEventSource 
 
     if (ev->buttons_len > 0) {
         unsigned char *buttonMask = (unsigned char *) &ev[1];
-        // There is a bug in the evdev driver which leads to receiving mouse events without
-        // XIPointerEmulated being set: https://bugs.freedesktop.org/show_bug.cgi?id=98188
-        // Filter them out by other attributes: when their source device is a touch screen
-        // and the LMB is pressed.
-        if (qt_xcb_mask_is_set(buttonMask, 1) && conn->isTouchScreen(ev->sourceid)) {
-            if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-                qCDebug(lcQpaXInput, "XI2 mouse event from touch device %d was ignored", ev->sourceid);
-            return;
-        }
         for (int i = 1; i <= 15; ++i)
             conn->setButtonState(conn->translateMouseButton(i), qt_xcb_mask_is_set(buttonMask, i));
     }
@@ -2202,7 +2168,7 @@ bool QXcbWindow::setMouseGrabEnabled(bool grab)
     if (grab && !connection()->canGrab())
         return false;
 
-    if (connection()->hasXInput2() && !connection()->xi2MouseEventsDisabled()) {
+    if (connection()->hasXInput2()) {
         bool result = connection()->xi2SetMouseGrabEnabled(m_window, grab);
         if (grab && result)
             connection()->setMouseGrabber(this);
