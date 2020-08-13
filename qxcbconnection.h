@@ -96,7 +96,6 @@ public:
     virtual void handleFocusInEvent(const xcb_focus_in_event_t *) {}
     virtual void handleFocusOutEvent(const xcb_focus_out_event_t *) {}
     virtual void handlePropertyNotifyEvent(const xcb_property_notify_event_t *) {}
-    virtual void handleXIMouseEvent(xcb_ge_event_t *, Qt::MouseEventSource = Qt::MouseEventNotSynthesized) {}
     virtual void handleXIEnterLeave(xcb_ge_event_t *) {}
     virtual QXcbWindow *toWindow() { return nullptr; }
 };
@@ -243,7 +242,7 @@ private:
         double min = 0.0;
         double max = 0.0;
         int number = -1;
-        xcb_atom_t label = 0;
+        xcb_atom_t label = XCB_ATOM_NONE;
     };
     QList<ValuatorClassInfo> m_valuatorInfo;
     QList<QWindowSystemInterface::TouchPoint> m_touchPoints;
@@ -255,7 +254,7 @@ private:
     static bool xi2GetValuatorValueIfSet(const void *event, int valuatorNum, double *value);
 
     QTouchDevice *m_touchDevices = nullptr;
-    constexpr static auto MaxTouchPoints = 6;
+    int maxTouchPoints = 1;
 
     const bool m_canGrabServer;
     const xcb_visualid_t m_defaultVisualId;
@@ -287,7 +286,7 @@ private:
     xcb_window_t m_clientLeader = 0;
     QByteArray m_startupId;
     bool m_xiGrab = false;
-    QList<int> m_xiMasterPointerIds;
+    unsigned short masterPointerId;
 
     xcb_window_t m_qtSelectionOwner = 0;
 

@@ -87,8 +87,6 @@ static inline qreal fixed3232ToReal(xcb_input_fp3232_t val)
 
 void QXcbConnection::xi2SetupDevices()
 {
-    m_xiMasterPointerIds.clear();
-
     auto reply = Q_XCB_REPLY(xcb_input_xi_query_device, xcb_connection(), XCB_INPUT_DEVICE_ALL);
     if (!reply) {
         qCDebug(lcQpaXInputDevices) << "failed to query devices";
@@ -100,13 +98,10 @@ void QXcbConnection::xi2SetupDevices()
         xcb_input_xi_device_info_t *deviceInfo = it.data;
         if (deviceInfo->type == XCB_INPUT_DEVICE_TYPE_MASTER_POINTER) {
             populateTouchDevices(deviceInfo);
-            m_xiMasterPointerIds.append(deviceInfo->deviceid);
+            masterPointerId = deviceInfo->deviceid;
             break;
         }
     }
-
-    if (m_xiMasterPointerIds.size() > 1)
-        qCDebug(lcQpaXInputDevices) << "multi-pointer X detected";
 }
 
 void QXcbConnection::populateTouchDevices(void *info)
@@ -115,18 +110,33 @@ void QXcbConnection::populateTouchDevices(void *info)
 
     auto *deviceInfo = reinterpret_cast<xcb_input_xi_device_info_t *>(info);
 
+    qCDebug(lcQpaXInputDevices) << "input device " << xcb_input_xi_device_info_name(deviceInfo) << "ID" << deviceInfo->deviceid;
+
     auto classes_it = xcb_input_xi_device_info_classes_iterator(deviceInfo);
     for (; classes_it.rem; xcb_input_device_class_next(&classes_it)) {
         xcb_input_device_class_t *classinfo = classes_it.data;
         switch (classinfo->type) {
         case XCB_INPUT_DEVICE_CLASS_TYPE_VALUATOR: {
             auto *vci = reinterpret_cast<xcb_input_valuator_class_t *>(classinfo);
+            const int valuatorAtom = qatom(vci->label);
+            qCDebug(lcQpaXInputDevices) << "   has valuator" << atomName(vci->label) << "recognized?" << (valuatorAtom < QXcbAtom::NAtoms);
             ValuatorClassInfo info;
             info.min = fixed3232ToReal(vci->min);
             info.max = fixed3232ToReal(vci->max);
             info.number = vci->number;
             info.label = vci->label;
             m_valuatorInfo.append(info);
+            break;
+        }
+        case XCB_INPUT_DEVICE_CLASS_TYPE_BUTTON: {
+            auto *bci = reinterpret_cast<xcb_input_button_class_t *>(classinfo);
+            auto reply = Q_XCB_REPLY(xcb_input_xi_get_property, xcb_connection(),
+                                     bci->sourceid, 0, atom(QXcbAtom::MaxContacts), XCB_ATOM_ANY, 0, 1);
+            if (reply && reply->type == XCB_ATOM_INTEGER && reply->format == 8) {
+                quint8 *ptr = reinterpret_cast<quint8 *>(xcb_input_xi_get_property_items(reply.get()));
+                maxTouchPoints = ptr[0];
+            }
+            qCDebug(lcQpaXInputDevices, "   has %d buttons", bci->num_buttons);
             break;
         }
         default:
@@ -139,7 +149,11 @@ void QXcbConnection::populateTouchDevices(void *info)
     m_touchDevices->setType(QTouchDevice::TouchScreen);
     m_touchDevices->setCapabilities(QTouchDevice::Position | QTouchDevice::NormalizedPosition
                                     | QTouchDevice::Area);
-    m_touchDevices->setMaximumTouchPoints(MaxTouchPoints);
+    m_touchDevices->setMaximumTouchPoints(maxTouchPoints);
+
+    qCDebug(lcQpaXInputDevices, "   it's a touchscreen with type %d capabilities 0x%X max touch points %d",
+            m_touchDevices->type(), (unsigned int)m_touchDevices->capabilities(),
+            m_touchDevices->maximumTouchPoints());
 
     QWindowSystemInterface::registerTouchDevice(m_touchDevices);
 }
@@ -211,10 +225,10 @@ void QXcbConnection::xi2ProcessTouch(void *xiDevEvent, QXcbWindow *platformWindo
 {
     auto *xiDeviceEvent = reinterpret_cast<xcb_input_motion_event_t *>(xiDevEvent);
     QList<QWindowSystemInterface::TouchPoint> touchPoints = m_touchPoints;
-    if (touchPoints.count() != MaxTouchPoints) {
+    if (touchPoints.count() != maxTouchPoints) {
         // initial event, allocate space for all (potential) touch points
-        touchPoints.reserve(MaxTouchPoints);
-        for (int i = 0; i < MaxTouchPoints; ++i) {
+        touchPoints.reserve(maxTouchPoints);
+        for (int i = 0; i < maxTouchPoints; ++i) {
             QWindowSystemInterface::TouchPoint tp;
             tp.id = i;
             tp.state = Qt::TouchPointReleased;
@@ -291,31 +305,27 @@ bool QXcbConnection::xi2SetMouseGrabEnabled(xcb_window_t w, bool grab)
                 | XCB_INPUT_XI_EVENT_MASK_ENTER
                 | XCB_INPUT_XI_EVENT_MASK_LEAVE;
 
-        for (int id : qAsConst(m_xiMasterPointerIds)) {
-            xcb_generic_error_t *error = nullptr;
-            auto cookie = xcb_input_xi_grab_device(xcb_connection(), w, XCB_CURRENT_TIME, XCB_CURSOR_NONE, id,
-                                                   XCB_INPUT_GRAB_MODE_22_ASYNC, XCB_INPUT_GRAB_MODE_22_ASYNC,
-                                                   false, 1, &mask);
-            auto *reply = xcb_input_xi_grab_device_reply(xcb_connection(), cookie, &error);
-            if (error) {
-                qCDebug(lcQpaXInput, "failed to grab events for device %d on window %x"
-                                     "(error code %d)", id, w, error->error_code);
-                free(error);
-            } else {
-                // Managed to grab at least one of master pointers, that should be enough
-                // to properly dismiss windows that rely on mouse grabbing.
-                ok = true;
-            }
-            free(reply);
+        xcb_generic_error_t *error = nullptr;
+        auto cookie = xcb_input_xi_grab_device(xcb_connection(), w, XCB_CURRENT_TIME, XCB_CURSOR_NONE, masterPointerId,
+                                               XCB_INPUT_GRAB_MODE_22_ASYNC, XCB_INPUT_GRAB_MODE_22_ASYNC,
+                                               false, 1, &mask);
+        auto *reply = xcb_input_xi_grab_device_reply(xcb_connection(), cookie, &error);
+        if (error) {
+            qCDebug(lcQpaXInput, "failed to grab events for device %d on window %x"
+                                 "(error code %d)", masterPointerId, w, error->error_code);
+            free(error);
+        } else {
+            // Managed to grab at least one of master pointers, that should be enough
+            // to properly dismiss windows that rely on mouse grabbing.
+            ok = true;
         }
+        free(reply);
     } else { // ungrab
-        for (int id : qAsConst(m_xiMasterPointerIds)) {
-            auto cookie = xcb_input_xi_ungrab_device_checked(xcb_connection(), XCB_CURRENT_TIME, id);
-            xcb_generic_error_t *error = xcb_request_check(xcb_connection(), cookie);
-            if (error) {
-                qCDebug(lcQpaXInput, "XIUngrabDevice failed - id: %d (error code %d)", id, error->error_code);
-                free(error);
-            }
+        auto cookie = xcb_input_xi_ungrab_device_checked(xcb_connection(), XCB_CURRENT_TIME, masterPointerId);
+        xcb_generic_error_t *error = xcb_request_check(xcb_connection(), cookie);
+        if (error) {
+            qCDebug(lcQpaXInput, "XIUngrabDevice failed - id: %d (error code %d)", masterPointerId, error->error_code);
+            free(error);
         }
         // XIUngrabDevice does not seem to wait for a reply from X server (similar to
         // xcb_ungrab_pointer). Ungrabbing won't fail, unless NoSuchExtension error

@@ -328,19 +328,6 @@ void QXcbWindow::create()
             qWarning() << "Failed to use requested visual id.";
     }
 
-    if (parent()) {
-        // When using a Vulkan QWindow via QWidget::createWindowContainer() we
-        // must make sure the visuals are compatible. Now, the parent will be
-        // of RasterGLSurface which typically chooses a GLX/EGL compatible
-        // visual which may not be what the Vulkan window would choose.
-        // Therefore, take the parent's visual.
-        if (window()->surfaceType() == QSurface::VulkanSurface
-                && parent()->window()->surfaceType() != QSurface::VulkanSurface)
-        {
-            visual = platformScreen->visualForId(static_cast<QXcbWindow *>(parent())->visualId());
-        }
-    }
-
     if (!visual)
         visual = createVisual();
 
@@ -1938,60 +1925,6 @@ void QXcbWindow::handleMotionNotifyEvent(const xcb_motion_notify_event_t *event)
 static inline int fixed1616ToInt(xcb_input_fp1616_t val)
 {
     return int(qreal(val) / 0x10000);
-}
-
-#define qt_xcb_mask_is_set(ptr, event) (((unsigned char*)(ptr))[(event)>>3] & (1 << ((event) & 7)))
-
-void QXcbWindow::handleXIMouseEvent(xcb_ge_event_t *event, Qt::MouseEventSource source)
-{
-    QXcbConnection *conn = connection();
-    auto *ev = reinterpret_cast<xcb_input_button_press_event_t *>(event);
-
-    if (ev->buttons_len > 0) {
-        unsigned char *buttonMask = (unsigned char *) &ev[1];
-        for (int i = 1; i <= 15; ++i)
-            conn->setButtonState(conn->translateMouseButton(i), qt_xcb_mask_is_set(buttonMask, i));
-    }
-
-    const Qt::KeyboardModifiers modifiers = conn->keyboard()->translateModifiers(ev->mods.effective);
-    const int event_x = fixed1616ToInt(ev->event_x);
-    const int event_y = fixed1616ToInt(ev->event_y);
-    const int root_x = fixed1616ToInt(ev->root_x);
-    const int root_y = fixed1616ToInt(ev->root_y);
-
-    conn->keyboard()->updateXKBStateFromXI(&ev->mods, &ev->group);
-
-    const Qt::MouseButton button = conn->xiToQtMouseButton(ev->detail);
-
-    const char *sourceName = nullptr;
-    if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled())) {
-        const QMetaObject *metaObject = qt_getEnumMetaObject(source);
-        const QMetaEnum me = metaObject->enumerator(metaObject->indexOfEnumerator(qt_getEnumName(source)));
-        sourceName = me.valueToKey(source);
-    }
-
-    switch (ev->event_type) {
-    case XCB_INPUT_BUTTON_PRESS:
-        if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-            qCDebug(lcQpaXInputEvents, "XI2 mouse press, button %d, time %d, source %s", button, ev->time, sourceName);
-        conn->setButtonState(button, true);
-        handleButtonPressEvent(event_x, event_y, root_x, root_y, ev->detail, modifiers, ev->time, QEvent::MouseButtonPress, source);
-        break;
-    case XCB_INPUT_BUTTON_RELEASE:
-        if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-            qCDebug(lcQpaXInputEvents, "XI2 mouse release, button %d, time %d, source %s", button, ev->time, sourceName);
-        conn->setButtonState(button, false);
-        handleButtonReleaseEvent(event_x, event_y, root_x, root_y, ev->detail, modifiers, ev->time, QEvent::MouseButtonRelease, source);
-        break;
-    case XCB_INPUT_MOTION:
-        if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-            qCDebug(lcQpaXInputEvents, "XI2 mouse motion %d,%d, time %d, source %s", event_x, event_y, ev->time, sourceName);
-        handleMotionNotifyEvent(event_x, event_y, root_x, root_y, modifiers, ev->time, QEvent::MouseMove, source);
-        break;
-    default:
-        qWarning() << "Unrecognized XI2 mouse event" << ev->event_type;
-        break;
-    }
 }
 
 void QXcbWindow::handleXIEnterLeave(xcb_ge_event_t *event)
