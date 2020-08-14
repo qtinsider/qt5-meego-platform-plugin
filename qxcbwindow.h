@@ -123,21 +123,12 @@ public:
     void handleConfigureNotifyEvent(const xcb_configure_notify_event_t *event) override;
     void handleMapNotifyEvent(const xcb_map_notify_event_t *event) override;
     void handleUnmapNotifyEvent(const xcb_unmap_notify_event_t *event) override;
-    void handleButtonPressEvent(const xcb_button_press_event_t *event) override;
-    void handleButtonReleaseEvent(const xcb_button_release_event_t *event) override;
-    void handleMotionNotifyEvent(const xcb_motion_notify_event_t *event) override;
-
-    void handleEnterNotifyEvent(const xcb_enter_notify_event_t *event) override;
-    void handleLeaveNotifyEvent(const xcb_leave_notify_event_t *event) override;
     void handleFocusInEvent(const xcb_focus_in_event_t *event) override;
     void handleFocusOutEvent(const xcb_focus_out_event_t *event) override;
     void handlePropertyNotifyEvent(const xcb_property_notify_event_t *event) override;
     void handleXIEnterLeave(xcb_ge_event_t *) override;
 
     QXcbWindow *toWindow() override;
-
-    void handleMouseEvent(xcb_timestamp_t time, const QPoint &local, const QPoint &global,
-                          Qt::KeyboardModifiers modifiers, QEvent::Type type, Qt::MouseEventSource source);
 
     void updateNetWmUserTime(xcb_timestamp_t timestamp);
 
@@ -187,7 +178,6 @@ protected:
 
     void setMotifWmHints(Qt::WindowFlags flags);
 
-    void setTransparentForMouseEvents(bool transparent);
     void updateDoesNotAcceptFocus(bool doesNotAcceptFocus);
 
     void sendXEmbedMessage(xcb_window_t window, quint32 message,
@@ -201,23 +191,9 @@ protected:
     void doFocusIn();
     void doFocusOut();
 
-    void handleButtonPressEvent(int event_x, int event_y, int root_x, int root_y,
-                                int detail, Qt::KeyboardModifiers modifiers, xcb_timestamp_t timestamp,
-                                QEvent::Type type, Qt::MouseEventSource source = Qt::MouseEventNotSynthesized);
+    void handleEnterNotifyEvent(int event_x, int event_y, int root_x, int root_y, xcb_timestamp_t timestamp);
 
-    void handleButtonReleaseEvent(int event_x, int event_y, int root_x, int root_y,
-                                  int detail, Qt::KeyboardModifiers modifiers, xcb_timestamp_t timestamp,
-                                  QEvent::Type type, Qt::MouseEventSource source = Qt::MouseEventNotSynthesized);
-
-    void handleMotionNotifyEvent(int event_x, int event_y, int root_x, int root_y,
-                                 Qt::KeyboardModifiers modifiers, xcb_timestamp_t timestamp,
-                                 QEvent::Type type, Qt::MouseEventSource source = Qt::MouseEventNotSynthesized);
-
-    void handleEnterNotifyEvent(int event_x, int event_y, int root_x, int root_y,
-                                quint8 mode, quint8 detail, xcb_timestamp_t timestamp);
-
-    void handleLeaveNotifyEvent(int root_x, int root_y,
-                                quint8 mode, quint8 detail, xcb_timestamp_t timestamp);
+    void handleLeaveNotifyEvent(int root_x, int root_y, xcb_timestamp_t timestamp);
 
     xcb_window_t m_window = 0;
     xcb_colormap_t m_cmap = 0;

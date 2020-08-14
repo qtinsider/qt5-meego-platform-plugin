@@ -149,8 +149,7 @@ QXcbBasicConnection::QXcbBasicConnection(const char *displayName)
         initializeXinerama();
     initializeXFixes();
     initializeXRender();
-    if (!qEnvironmentVariableIsSet("QT_XCB_NO_XI2"))
-        initializeXInput2();
+    initializeXInput2();
     initializeXShape();
     initializeXKB();
 }

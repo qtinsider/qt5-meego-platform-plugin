@@ -53,8 +53,6 @@ public:
         _NET_WM_CONTEXT_HELP,
         _NET_WM_SYNC_REQUEST,
         _NET_WM_SYNC_REQUEST_COUNTER,
-        MANAGER, // System tray notification
-        _NET_SYSTEM_TRAY_OPCODE, // System tray operation
 
         // ICCCM window state
         WM_STATE,
@@ -142,7 +140,6 @@ public:
         _NET_WM_WINDOW_TYPE_TOOLTIP,
         _NET_WM_WINDOW_TYPE_NOTIFICATION,
         _NET_WM_WINDOW_TYPE_COMBO,
-        _NET_WM_WINDOW_TYPE_DND,
         _NET_WM_WINDOW_TYPE_NORMAL,
         _KDE_NET_WM_WINDOW_TYPE_OVERRIDE,
 
@@ -156,35 +153,12 @@ public:
 
         _NET_WM_CM_S0,
 
-        _NET_SYSTEM_TRAY_VISUAL,
-
         _NET_ACTIVE_WINDOW,
 
         // Property formats
         TEXT,
         UTF8_STRING,
         CARDINAL,
-
-        // Xdnd
-        XdndEnter,
-        XdndPosition,
-        XdndStatus,
-        XdndLeave,
-        XdndDrop,
-        XdndFinished,
-        XdndTypelist,
-        XdndActionList,
-
-        XdndSelection,
-
-        XdndAware,
-        XdndProxy,
-
-        XdndActionCopy,
-        XdndActionLink,
-        XdndActionMove,
-        XdndActionAsk,
-        XdndActionPrivate,
 
         // Xkb
         _XKB_RULES_NAMES,
@@ -204,17 +178,10 @@ public:
 
         _XSETTINGS_SETTINGS,
 
-        _COMPIZ_DECOR_PENDING,
-        _COMPIZ_DECOR_REQUEST,
-        _COMPIZ_DECOR_DELETE_PIXMAP,
-        _COMPIZ_TOOLKIT_ACTION,
-        _GTK_LOAD_ICONTHEMES,
+        // MEEGO(TOUCH)-specific
+        _MEEGOTOUCH_MINIMIZE_ANIMATION,
 
         AT_SPI_BUS,
-
-        EDID,
-        EDID_DATA,
-        XFree86_DDC_EDID1_RAWDATA,
 
         NAtoms
     };

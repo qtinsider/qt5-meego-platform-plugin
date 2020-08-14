@@ -88,11 +88,6 @@ public:
     virtual void handleMapNotifyEvent(const xcb_map_notify_event_t *) {}
     virtual void handleUnmapNotifyEvent(const xcb_unmap_notify_event_t *) {}
     virtual void handleDestroyNotifyEvent(const xcb_destroy_notify_event_t *) {}
-    virtual void handleButtonPressEvent(const xcb_button_press_event_t *) {}
-    virtual void handleButtonReleaseEvent(const xcb_button_release_event_t *) {}
-    virtual void handleMotionNotifyEvent(const xcb_motion_notify_event_t *) {}
-    virtual void handleEnterNotifyEvent(const xcb_enter_notify_event_t *) {}
-    virtual void handleLeaveNotifyEvent(const xcb_leave_notify_event_t *) {}
     virtual void handleFocusInEvent(const xcb_focus_in_event_t *) {}
     virtual void handleFocusOutEvent(const xcb_focus_out_event_t *) {}
     virtual void handlePropertyNotifyEvent(const xcb_property_notify_event_t *) {}
@@ -180,17 +175,10 @@ public:
     xcb_window_t getSelectionOwner(xcb_atom_t atom) const;
     xcb_window_t getQtSelectionOwner();
 
-    void setButtonState(Qt::MouseButton button, bool down);
-    Qt::MouseButtons buttonState() const { return m_buttonState; }
-    Qt::MouseButton button() const { return m_button; }
-    Qt::MouseButton translateMouseButton(xcb_button_t s);
-
     QXcbWindow *focusWindow() const { return m_focusWindow; }
     void setFocusWindow(QWindow *);
     QXcbWindow *mouseGrabber() const { return m_mouseGrabber; }
     void setMouseGrabber(QXcbWindow *);
-    QXcbWindow *mousePressWindow() const { return m_mousePressWindow; }
-    void setMousePressWindow(QXcbWindow *);
 
     QByteArray startupId() const { return m_startupId; }
     void setStartupId(const QByteArray &nextId) { m_startupId = nextId; }
@@ -201,14 +189,10 @@ public:
 
     QXcbNativeInterface *nativeInterface() const { return m_nativeInterface; }
 
-    Qt::MouseButtons queryMouseButtons() const;
-    Qt::KeyboardModifiers queryKeyboardModifiers() const;
-
     bool isUserInputEvent(xcb_generic_event_t *event) const;
 
     void xi2SelectDeviceEvents(xcb_window_t window);
     bool xi2SetMouseGrabEnabled(xcb_window_t w, bool grab);
-    Qt::MouseButton xiToQtMouseButton(uint32_t b);
 
     bool canGrab() const { return m_canGrabServer; }
 
@@ -276,24 +260,20 @@ private:
 
     WindowMapper m_mapper;
 
-    Qt::MouseButtons m_buttonState;
-    Qt::MouseButton m_button = Qt::NoButton;
-
     QXcbWindow *m_focusWindow = nullptr;
     QXcbWindow *m_mouseGrabber = nullptr;
-    QXcbWindow *m_mousePressWindow = nullptr;
 
     xcb_window_t m_clientLeader = 0;
     QByteArray m_startupId;
     bool m_xiGrab = false;
-    unsigned short masterPointerId;
+    QList<int> m_xiMasterPointerIds;
 
     xcb_window_t m_qtSelectionOwner = 0;
 
     friend class QXcbEventQueue;
 
-    QByteArray m_xdgCurrentDesktop;
     QTimer m_focusInTimer;
+
 };
 
 class QXcbConnectionGrabber

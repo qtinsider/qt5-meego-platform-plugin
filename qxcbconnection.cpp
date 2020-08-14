@@ -88,8 +88,6 @@ QXcbConnection::QXcbConnection(QXcbNativeInterface *nativeInterface, bool canGra
 
     m_eventQueue = new QXcbEventQueue(this);
 
-    m_xdgCurrentDesktop = qgetenv("XDG_CURRENT_DESKTOP").toLower();
-
     if (hasXRandr())
         xrandrSelectEvents();
 
@@ -436,59 +434,6 @@ void QXcbConnection::printXcbError(const char *message, xcb_generic_error_t *err
              int(error->minor_code));
 }
 
-static Qt::MouseButtons translateMouseButtons(int s)
-{
-    Qt::MouseButtons ret;
-    if (s & XCB_BUTTON_MASK_1)
-        ret |= Qt::LeftButton;
-    if (s & XCB_BUTTON_MASK_2)
-        ret |= Qt::MidButton;
-    if (s & XCB_BUTTON_MASK_3)
-        ret |= Qt::RightButton;
-    return ret;
-}
-
-void QXcbConnection::setButtonState(Qt::MouseButton button, bool down)
-{
-    m_buttonState.setFlag(button, down);
-    m_button = button;
-}
-
-Qt::MouseButton QXcbConnection::translateMouseButton(xcb_button_t s)
-{
-    switch (s) {
-    case 1: return Qt::LeftButton;
-    case 2: return Qt::MidButton;
-    case 3: return Qt::RightButton;
-    // Button values 4-7 were already handled as Wheel events, and won't occur here.
-    case 8: return Qt::BackButton;      // Also known as Qt::ExtraButton1
-    case 9: return Qt::ForwardButton;   // Also known as Qt::ExtraButton2
-    case 10: return Qt::ExtraButton3;
-    case 11: return Qt::ExtraButton4;
-    case 12: return Qt::ExtraButton5;
-    case 13: return Qt::ExtraButton6;
-    case 14: return Qt::ExtraButton7;
-    case 15: return Qt::ExtraButton8;
-    case 16: return Qt::ExtraButton9;
-    case 17: return Qt::ExtraButton10;
-    case 18: return Qt::ExtraButton11;
-    case 19: return Qt::ExtraButton12;
-    case 20: return Qt::ExtraButton13;
-    case 21: return Qt::ExtraButton14;
-    case 22: return Qt::ExtraButton15;
-    case 23: return Qt::ExtraButton16;
-    case 24: return Qt::ExtraButton17;
-    case 25: return Qt::ExtraButton18;
-    case 26: return Qt::ExtraButton19;
-    case 27: return Qt::ExtraButton20;
-    case 28: return Qt::ExtraButton21;
-    case 29: return Qt::ExtraButton22;
-    case 30: return Qt::ExtraButton23;
-    case 31: return Qt::ExtraButton24;
-    default: return Qt::NoButton;
-    }
-}
-
 namespace {
     typedef union {
         /* All XKB events share these fields. */
@@ -526,37 +471,6 @@ void QXcbConnection::handleXcbEvent(xcb_generic_event_t *event)
     switch (response_type) {
     case XCB_EXPOSE:
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_expose_event_t, window, handleExposeEvent);
-    case XCB_BUTTON_PRESS: {
-        auto ev = reinterpret_cast<xcb_button_press_event_t *>(event);
-        m_keyboard->updateXKBStateFromCore(ev->state);
-        // the event explicitly contains the state of the three first buttons,
-        // the rest we need to manage ourselves
-        m_buttonState = (m_buttonState & ~0x7) | translateMouseButtons(ev->state);
-        setButtonState(translateMouseButton(ev->detail), true);
-        if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-            qCDebug(lcQpaXInputEvents, "legacy mouse press, button %d state %X",
-                    ev->detail, static_cast<unsigned int>(m_buttonState));
-        HANDLE_PLATFORM_WINDOW_EVENT(xcb_button_press_event_t, event, handleButtonPressEvent);
-    }
-    case XCB_BUTTON_RELEASE: {
-        auto ev = reinterpret_cast<xcb_button_release_event_t *>(event);
-        m_keyboard->updateXKBStateFromCore(ev->state);
-        m_buttonState = (m_buttonState & ~0x7) | translateMouseButtons(ev->state);
-        setButtonState(translateMouseButton(ev->detail), false);
-        if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-            qCDebug(lcQpaXInputEvents, "legacy mouse release, button %d state %X",
-                    ev->detail, static_cast<unsigned int>(m_buttonState));
-        HANDLE_PLATFORM_WINDOW_EVENT(xcb_button_release_event_t, event, handleButtonReleaseEvent);
-    }
-    case XCB_MOTION_NOTIFY: {
-        auto ev = reinterpret_cast<xcb_motion_notify_event_t *>(event);
-        m_keyboard->updateXKBStateFromCore(ev->state);
-        m_buttonState = (m_buttonState & ~0x7) | translateMouseButtons(ev->state);
-        if (Q_UNLIKELY(lcQpaXInputEvents().isDebugEnabled()))
-            qCDebug(lcQpaXInputEvents, "legacy mouse move %d,%d button %d state %X",
-                    ev->event_x, ev->event_y, ev->detail, static_cast<unsigned int>(m_buttonState));
-        HANDLE_PLATFORM_WINDOW_EVENT(xcb_motion_notify_event_t, event, handleMotionNotifyEvent);
-    }
     case XCB_CONFIGURE_NOTIFY:
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_configure_notify_event_t, event, handleConfigureNotifyEvent);
     case XCB_MAP_NOTIFY:
@@ -571,15 +485,6 @@ void QXcbConnection::handleXcbEvent(xcb_generic_event_t *event)
             return;
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_client_message_event_t, window, handleClientMessageEvent);
     }
-    case XCB_ENTER_NOTIFY:
-        if (hasXInput2())
-            break;
-        HANDLE_PLATFORM_WINDOW_EVENT(xcb_enter_notify_event_t, event, handleEnterNotifyEvent);
-    case XCB_LEAVE_NOTIFY:
-        if (hasXInput2())
-            break;
-        m_keyboard->updateXKBStateFromCore(reinterpret_cast<xcb_leave_notify_event_t *>(event)->state);
-        HANDLE_PLATFORM_WINDOW_EVENT(xcb_leave_notify_event_t, event, handleLeaveNotifyEvent);
     case XCB_FOCUS_IN:
         HANDLE_PLATFORM_WINDOW_EVENT(xcb_focus_in_event_t, event, handleFocusInEvent);
     case XCB_FOCUS_OUT:
@@ -699,11 +604,6 @@ void QXcbConnection::setFocusWindow(QWindow *w)
 void QXcbConnection::setMouseGrabber(QXcbWindow *w)
 {
     m_mouseGrabber = w;
-    m_mousePressWindow = nullptr;
-}
-void QXcbConnection::setMousePressWindow(QXcbWindow *w)
-{
-    m_mousePressWindow = w;
 }
 
 void QXcbConnection::grabServer()
@@ -867,6 +767,7 @@ bool QXcbConnection::compressEvent(xcb_generic_event_t *event) const
                 return isXIType(next, XCB_INPUT_MOTION);
             });
         }
+
         return false;
     }
 
@@ -888,23 +789,12 @@ bool QXcbConnection::compressEvent(xcb_generic_event_t *event) const
 bool QXcbConnection::isUserInputEvent(xcb_generic_event_t *event) const
 {
     auto eventType = event->response_type & ~0x80;
-    bool isInputEvent = eventType == XCB_BUTTON_PRESS ||
-                        eventType == XCB_BUTTON_RELEASE ||
-                        eventType == XCB_KEY_PRESS ||
-                        eventType == XCB_KEY_RELEASE ||
-                        eventType == XCB_MOTION_NOTIFY ||
-                        eventType == XCB_ENTER_NOTIFY ||
-                        eventType == XCB_LEAVE_NOTIFY;
-    if (isInputEvent)
-        return true;
-
-    if (connection()->hasXInput2()) {
-        isInputEvent = isXIType(event, XCB_INPUT_BUTTON_PRESS) ||
+    bool isInputEvent = isXIType(event, XCB_INPUT_BUTTON_PRESS) ||
                        isXIType(event, XCB_INPUT_BUTTON_RELEASE) ||
                        isXIType(event, XCB_INPUT_MOTION) ||
                        isXIType(event, XCB_INPUT_ENTER) ||
                        isXIType(event, XCB_INPUT_LEAVE);
-    }
+
     if (isInputEvent)
         return true;
 
@@ -971,20 +861,6 @@ void QXcbConnection::sync()
     // from xcb_aux_sync
     xcb_get_input_focus_cookie_t cookie = xcb_get_input_focus(xcb_connection());
     free(xcb_get_input_focus_reply(xcb_connection(), cookie, nullptr));
-}
-
-Qt::MouseButtons QXcbConnection::queryMouseButtons() const
-{
-    int stateMask = 0;
-    QXcbCursor::queryPointer(connection(), nullptr, nullptr, &stateMask);
-    return translateMouseButtons(stateMask);
-}
-
-Qt::KeyboardModifiers QXcbConnection::queryKeyboardModifiers() const
-{
-    int stateMask = 0;
-    QXcbCursor::queryPointer(connection(), nullptr, nullptr, &stateMask);
-    return keyboard()->translateModifiers(stateMask);
 }
 
 bool QXcbConnection::event(QEvent *e)

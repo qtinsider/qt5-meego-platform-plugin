@@ -331,11 +331,6 @@ QPlatformServices *QXcbIntegration::services() const
     return m_services.data();
 }
 
-Qt::KeyboardModifiers QXcbIntegration::queryKeyboardModifiers() const
-{
-    return m_connections.at(0)->queryKeyboardModifiers();
-}
-
 QList<int> QXcbIntegration::possibleKeys(const QKeyEvent *e) const
 {
     return m_connections.at(0)->keyboard()->possibleKeys(e);

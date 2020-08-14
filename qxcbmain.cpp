@@ -60,7 +60,6 @@ QPlatformIntegration* QXcbIntegrationPlugin::create(const QString& system, const
         }
         return xcbIntegration;
     }
-
     return nullptr;
 }
 

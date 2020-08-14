@@ -53,8 +53,6 @@ static const char *xcb_atomnames = {
     "_NET_WM_CONTEXT_HELP\0"
     "_NET_WM_SYNC_REQUEST\0"
     "_NET_WM_SYNC_REQUEST_COUNTER\0"
-    "MANAGER\0"
-    "_NET_SYSTEM_TRAY_OPCODE\0"
 
     // ICCCM window state
     "WM_STATE\0"
@@ -141,7 +139,6 @@ static const char *xcb_atomnames = {
     "_NET_WM_WINDOW_TYPE_TOOLTIP\0"
     "_NET_WM_WINDOW_TYPE_NOTIFICATION\0"
     "_NET_WM_WINDOW_TYPE_COMBO\0"
-    "_NET_WM_WINDOW_TYPE_DND\0"
     "_NET_WM_WINDOW_TYPE_NORMAL\0"
     "_KDE_NET_WM_WINDOW_TYPE_OVERRIDE\0"
 
@@ -155,35 +152,12 @@ static const char *xcb_atomnames = {
 
     "_NET_WM_CM_S0\0"
 
-    "_NET_SYSTEM_TRAY_VISUAL\0"
-
     "_NET_ACTIVE_WINDOW\0"
 
     // Property formats
     "TEXT\0"
     "UTF8_STRING\0"
     "CARDINAL\0"
-
-    // xdnd
-    "XdndEnter\0"
-    "XdndPosition\0"
-    "XdndStatus\0"
-    "XdndLeave\0"
-    "XdndDrop\0"
-    "XdndFinished\0"
-    "XdndTypeList\0"
-    "XdndActionList\0"
-
-    "XdndSelection\0"
-
-    "XdndAware\0"
-    "XdndProxy\0"
-
-    "XdndActionCopy\0"
-    "XdndActionLink\0"
-    "XdndActionMove\0"
-    "XdndActionAsk\0"
-    "XdndActionPrivate\0"
 
     // Xkb
     "_XKB_RULES_NAMES\0"
@@ -200,15 +174,10 @@ static const char *xcb_atomnames = {
     "Abs MT Tracking ID\0"
     "Max Contacts\0"
     "_XSETTINGS_SETTINGS\0"
-    "_COMPIZ_DECOR_PENDING\0"
-    "_COMPIZ_DECOR_REQUEST\0"
-    "_COMPIZ_DECOR_DELETE_PIXMAP\0"
-    "_COMPIZ_TOOLKIT_ACTION\0"
-    "_GTK_LOAD_ICONTHEMES\0"
+
+    "_MEEGOTOUCH_MINIMIZE_ANIMATION\0"
+
     "AT_SPI_BUS\0"
-    "EDID\0"
-    "EDID_DATA\0"
-    "XFree86_DDC_EDID1_RAWDATA\0"
     // \0\0 terminates loop.
 };
 
