@@ -265,11 +265,8 @@ void QXcbBasicConnection::initializeShm()
     }
 
     m_hasShm = true;
-    m_hasShmFd = (shmQuery->major_version == 1 && shmQuery->minor_version >= 2) ||
-                  shmQuery->major_version > 1;
 
     qCDebug(lcQpaXcb) << "Has MIT-SHM     :" << m_hasShm;
-    qCDebug(lcQpaXcb) << "Has MIT-SHM FD  :" << m_hasShmFd;
 
     // Temporary disable warnings (unless running in debug mode).
     auto logging = const_cast<QLoggingCategory*>(&lcQpaXcb());
@@ -279,7 +276,7 @@ void QXcbBasicConnection::initializeShm()
     if (!QXcbBackingStore::createSystemVShmSegment(m_xcbConnection)) {
         qCDebug(lcQpaXcb, "failed to create System V shared memory segment (remote "
                           "X11 connection?), disabling SHM");
-        m_hasShm = m_hasShmFd = false;
+        m_hasShm = false;
     }
     if (wasEnabled)
         logging->setEnabled(QtMsgType::QtWarningMsg, true);

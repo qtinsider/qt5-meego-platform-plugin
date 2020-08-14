@@ -66,10 +66,6 @@
 
 #include <algorithm>
 
-#if (XCB_SHM_MAJOR_VERSION == 1 && XCB_SHM_MINOR_VERSION >= 2) || XCB_SHM_MAJOR_VERSION > 1
-#define XCB_USE_SHM_FD
-#endif
-
 QT_BEGIN_NAMESPACE
 
 class QXcbBackingStore;
@@ -356,47 +352,6 @@ void QXcbBackingStoreImage::createShmSegment(size_t segmentSize)
 {
     Q_ASSERT(connection()->hasShm());
     Q_ASSERT(m_segmentSize == 0);
-
-#ifdef XCB_USE_SHM_FD
-    if (connection()->hasShmFd()) {
-        if (Q_UNLIKELY(segmentSize > std::numeric_limits<uint32_t>::max())) {
-            qCWarning(lcQpaXcb, "xcb_shm_create_segment() can't be called for size %zu, maximum"
-                      "allowed size is %u", segmentSize, std::numeric_limits<uint32_t>::max());
-            return;
-        }
-
-        const auto seg = xcb_generate_id(xcb_connection());
-        auto reply = Q_XCB_REPLY(xcb_shm_create_segment,
-                                 xcb_connection(), seg, segmentSize, false);
-        if (!reply) {
-            qCWarning(lcQpaXcb, "xcb_shm_create_segment() failed for size %zu", segmentSize);
-            return;
-        }
-
-        int *fds = xcb_shm_create_segment_reply_fds(xcb_connection(), reply.get());
-        if (reply->nfd != 1) {
-            for (int i = 0; i < reply->nfd; i++)
-                close(fds[i]);
-
-            qCWarning(lcQpaXcb, "failed to get file descriptor for shm segment of size %zu", segmentSize);
-            return;
-        }
-
-        void *addr = mmap(nullptr, segmentSize, PROT_READ|PROT_WRITE, MAP_SHARED, fds[0], 0);
-        if (addr == MAP_FAILED) {
-            qCWarning(lcQpaXcb, "failed to mmap segment from X server (%d: %s) for size %zu",
-                     errno, strerror(errno), segmentSize);
-            close(fds[0]);
-            xcb_shm_detach(xcb_connection(), seg);
-            return;
-        }
-
-        close(fds[0]);
-        m_shm_info.shmseg = seg;
-        m_shm_info.shmaddr = static_cast<quint8 *>(addr);
-        m_segmentSize = segmentSize;
-    } else
-#endif
     {
         if (createSystemVShmSegment(xcb_connection(), segmentSize, &m_shm_info))
             m_segmentSize = segmentSize;
@@ -452,14 +407,6 @@ void QXcbBackingStoreImage::destroyShmSegment()
         connection()->printXcbError("xcb_shm_detach() failed with error", error);
     m_shm_info.shmseg = 0;
 
-#ifdef XCB_USE_SHM_FD
-    if (connection()->hasShmFd()) {
-        if (munmap(m_shm_info.shmaddr, m_segmentSize) == -1) {
-            qCWarning(lcQpaXcb, "munmap() failed (%d: %s) for %p with size %zu",
-                      errno, strerror(errno), m_shm_info.shmaddr, m_segmentSize);
-        }
-    } else
-#endif
     {
         if (shmdt(m_shm_info.shmaddr) == -1) {
             qCWarning(lcQpaXcb, "shmdt() failed (%d: %s) for %p",

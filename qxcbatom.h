@@ -91,11 +91,6 @@ public:
 
         _MOTIF_WM_HINTS,
 
-        DTWM_IS_RUNNING,
-        ENLIGHTENMENT_DESKTOP,
-        _DT_SAVE_MODE,
-        _SGI_DESKS_MANAGER,
-
         // EWMH (aka NETWM)
         _NET_SUPPORTED,
         _NET_VIRTUAL_ROOTS,

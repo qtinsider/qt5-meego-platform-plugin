@@ -94,7 +94,6 @@ public:
     }
     bool hasXInput2() const { return m_xi2Enabled; }
     bool hasShm() const { return m_hasShm; }
-    bool hasShmFd() const { return m_hasShmFd; }
     bool hasXSync() const { return m_hasXSync; }
     bool hasXinerama() const { return m_hasXinerama; }
     bool hasBigRequest() const;
@@ -135,7 +134,6 @@ private:
     bool m_hasXkb = false;
     bool m_hasXRender = false;
     bool m_hasShm = false;
-    bool m_hasShmFd = false;
     bool m_hasXSync = false;
 
     QPair<int, int> m_xrenderVersion;

@@ -90,11 +90,6 @@ static const char *xcb_atomnames = {
 
     "_MOTIF_WM_HINTS\0"
 
-    "DTWM_IS_RUNNING\0"
-    "ENLIGHTENMENT_DESKTOP\0"
-    "_DT_SAVE_MODE\0"
-    "_SGI_DESKS_MANAGER\0"
-
     // EWMH (aka NETWM)
     "_NET_SUPPORTED\0"
     "_NET_VIRTUAL_ROOTS\0"
