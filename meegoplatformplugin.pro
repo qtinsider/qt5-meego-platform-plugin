@@ -66,10 +66,6 @@ HEADERS = \
         qxcbatom.h \
         qxcbsessionmanager.h
 
-qtConfig(xcb-xlib) {
-    QMAKE_USE += xcb_xlib
-}
-
 QMAKE_USE += xkbcommon xkbcommon_x11
 
 PLUGIN_TYPE = platforms

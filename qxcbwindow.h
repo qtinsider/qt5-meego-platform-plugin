@@ -192,7 +192,6 @@ protected:
     void doFocusOut();
 
     void handleEnterNotifyEvent(int event_x, int event_y, int root_x, int root_y, xcb_timestamp_t timestamp);
-
     void handleLeaveNotifyEvent(int root_x, int root_y, xcb_timestamp_t timestamp);
 
     xcb_window_t m_window = 0;

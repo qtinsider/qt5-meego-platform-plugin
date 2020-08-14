@@ -73,12 +73,10 @@
 #include <QTextCodec>
 #include <stdio.h>
 
-#if QT_CONFIG(xcb_xlib)
 #define register        /* C++17 deprecated register */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #undef register
-#endif
 
 #define XCOORD_MAX 16383
 enum {
@@ -164,7 +162,6 @@ void QXcbWindow::setImageFormatForVisual(const xcb_visualtype_t *visual)
     }
 }
 
-#if QT_CONFIG(xcb_xlib)
 static inline XTextProperty* qstringToXTP(Display *dpy, const QString& s)
 {
     #include <X11/Xatom.h>
@@ -210,7 +207,6 @@ static inline XTextProperty* qstringToXTP(Display *dpy, const QString& s)
 #endif
     return &tp;
 }
-#endif // QT_CONFIG(xcb_xlib)
 
 // TODO move this into a utility function in QWindow or QGuiApplication
 static QWindow *childWindowAt(QWindow *win, const QPoint &p)
@@ -479,10 +475,8 @@ void QXcbWindow::create()
     setWindowFlags(window()->flags());
     setWindowTitle(window()->title());
 
-#if QT_CONFIG(xcb_xlib)
     // force sync to read outstanding requests - see QTBUG-29106
     XSync(static_cast<Display*>(platformScreen->connection()->xlib_display()), false);
-#endif
 
     const qreal opacity = qt_window_private(window())->opacity;
     if (!qFuzzyCompare(opacity, qreal(1.0)))
@@ -2127,12 +2121,10 @@ void QXcbWindow::setWindowTitle(const QXcbConnection *conn, xcb_window_t window,
                         ba.length(),
                         ba.constData());
 
-#if QT_CONFIG(xcb_xlib)
     Display *dpy = static_cast<Display *>(conn->xlib_display());
     XTextProperty *text = qstringToXTP(dpy, title);
     if (text)
         XSetWMName(dpy, window, text);
-#endif
     xcb_flush(conn->xcb_connection());
 }
 

@@ -115,7 +115,7 @@ private:
     CursorHash m_cursorHash;
     BitmapCursorCache m_bitmapCache;
 #endif
-#if QT_CONFIG(xcb_xlib) && QT_CONFIG(library)
+#if QT_CONFIG(library)
     static void cursorThemePropertyChanged(QXcbVirtualDesktop *screen,
                                            const QByteArray &name,
                                            const QVariant &property,

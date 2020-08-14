@@ -148,9 +148,7 @@ void *QXcbNativeInterface::nativeResourceForScreen(const QByteArray &resourceStr
     const QXcbScreen *xcbScreen = static_cast<QXcbScreen *>(screen->handle());
     switch (resourceType(lowerCaseResource)) {
     case Display:
-#if QT_CONFIG(xcb_xlib)
         result = xcbScreen->connection()->xlib_display();
-#endif
         break;
     case AppTime:
         result = appTime(xcbScreen);
@@ -362,12 +360,10 @@ void *QXcbNativeInterface::rootWindow()
 
 void *QXcbNativeInterface::display()
 {
-#if QT_CONFIG(xcb_xlib)
     QXcbIntegration *integration = QXcbIntegration::instance();
     QXcbConnection *defaultConnection = integration->defaultConnection();
     if (defaultConnection)
         return defaultConnection->xlib_display();
-#endif
     return nullptr;
 }
 
@@ -454,13 +450,8 @@ QXcbScreen *QXcbNativeInterface::qPlatformScreenForWindow(QWindow *window)
 
 void *QXcbNativeInterface::displayForWindow(QWindow *window)
 {
-#if QT_CONFIG(xcb_xlib)
     QXcbScreen *screen = qPlatformScreenForWindow(window);
     return screen ? screen->connection()->xlib_display() : nullptr;
-#else
-    Q_UNUSED(window);
-    return nullptr;
-#endif
 }
 
 void *QXcbNativeInterface::connectionForWindow(QWindow *window)

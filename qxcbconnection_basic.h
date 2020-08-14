@@ -63,9 +63,8 @@ public:
     QXcbBasicConnection(const char *displayName);
     ~QXcbBasicConnection();
 
-#if QT_CONFIG(xcb_xlib)
     void *xlib_display() const { return m_xlibDisplay; }
-#endif
+
     const char *displayName() const { return m_displayName.constData(); }
     int primaryScreenNumber() const { return m_primaryScreenNumber; }
     xcb_connection_t *xcb_connection() const { return m_xcbConnection; }
@@ -117,9 +116,8 @@ protected:
     void initializeXInput2();
 
 private:
-#if QT_CONFIG(xcb_xlib)
     void *m_xlibDisplay = nullptr;
-#endif
+
     QByteArray m_displayName;
     xcb_connection_t *m_xcbConnection = nullptr;
     int m_primaryScreenNumber = 0;

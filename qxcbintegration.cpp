@@ -62,11 +62,9 @@
 
 #include <QtGui/private/qguiapplication_p.h>
 
-#if QT_CONFIG(xcb_xlib)
 #define register        /* C++17 deprecated register */
 #include <X11/Xlib.h>
 #undef register
-#endif
 
 #include <qpa/qplatforminputcontextfactory_p.h>
 #include <private/qgenericunixthemes_p.h>
@@ -126,9 +124,7 @@ QXcbIntegration::QXcbIntegration(const QStringList &parameters, int &argc, char 
     QWindowSystemInterface::setPlatformFiltersEvents(true);
 
     qRegisterMetaType<QXcbWindow*>();
-#if QT_CONFIG(xcb_xlib)
     XInitThreads();
-#endif
     m_nativeInterface.reset(new QXcbNativeInterface);
 
     // Parse arguments

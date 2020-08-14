@@ -50,20 +50,17 @@
 #include <xcb/xkb.h>
 #undef explicit
 
-#if QT_CONFIG(xcb_xlib)
 #define register        /* C++17 deprecated register */
 #include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlibint.h>
 #include <X11/Xutil.h>
 #undef register
-#endif
 
 QT_BEGIN_NAMESPACE
 
 Q_LOGGING_CATEGORY(lcQpaXcb, "qt.qpa.xcb")
 
-#if QT_CONFIG(xcb_xlib)
 static const char * const xcbConnectionErrors[] = {
     "No error", /* Error 0 */
     "I/O error", /* XCB_CONN_ERROR */
@@ -105,12 +102,10 @@ static int ioErrorHandler(Display *dpy)
     }
     return _XDefaultIOError(dpy);
 }
-#endif
 
 QXcbBasicConnection::QXcbBasicConnection(const char *displayName)
     : m_displayName(displayName ? QByteArray(displayName) : qgetenv("DISPLAY"))
 {
-#if QT_CONFIG(xcb_xlib)
     Display *dpy = XOpenDisplay(m_displayName.constData());
     if (dpy) {
         m_primaryScreenNumber = DefaultScreen(dpy);
@@ -120,9 +115,6 @@ QXcbBasicConnection::QXcbBasicConnection(const char *displayName)
         XSetIOErrorHandler(ioErrorHandler);
         m_xlibDisplay = dpy;
     }
-#else
-    m_xcbConnection = xcb_connect(m_displayName.constData(), &m_primaryScreenNumber);
-#endif
     if (Q_UNLIKELY(!isConnected())) {
         qCWarning(lcQpaXcb, "could not connect to display %s", m_displayName.constData());
         return;
@@ -157,11 +149,7 @@ QXcbBasicConnection::QXcbBasicConnection(const char *displayName)
 QXcbBasicConnection::~QXcbBasicConnection()
 {
     if (isConnected()) {
-#if QT_CONFIG(xcb_xlib)
         XCloseDisplay(static_cast<Display *>(m_xlibDisplay));
-#else
-        xcb_disconnect(m_xcbConnection);
-#endif
     }
 }
 
