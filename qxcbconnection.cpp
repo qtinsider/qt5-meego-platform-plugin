@@ -65,8 +65,6 @@
 #undef explicit
 #include <xcb/xinput.h>
 
-QT_BEGIN_NAMESPACE
-
 Q_LOGGING_CATEGORY(lcQpaXInput, "qt.qpa.input")
 Q_LOGGING_CATEGORY(lcQpaXInputDevices, "qt.qpa.input.devices")
 Q_LOGGING_CATEGORY(lcQpaXInputEvents, "qt.qpa.input.events")
@@ -904,5 +902,3 @@ void QXcbConnectionGrabber::release()
         m_connection = nullptr;
     }
 }
-
-QT_END_NAMESPACE

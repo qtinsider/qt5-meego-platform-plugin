@@ -48,8 +48,6 @@
 #include <glib.h>
 #endif
 
-QT_BEGIN_NAMESPACE
-
 class QXcbConnection;
 
 class QXcbUnixEventDispatcher : public QEventDispatcherUNIX
@@ -108,7 +106,5 @@ class QXcbEventDispatcher
 public:
     static QAbstractEventDispatcher *createEventDispatcher(QXcbConnection *connection);
 };
-
-QT_END_NAMESPACE
 
 #endif // QXCBEVENTDISPATCHER_H

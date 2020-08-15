@@ -84,8 +84,6 @@ enum {
     defaultWindowHeight = 160
 };
 
-QT_BEGIN_NAMESPACE
-
 Q_DECLARE_TYPEINFO(xcb_rectangle_t, Q_PRIMITIVE_TYPE);
 
 #undef FocusIn
@@ -2149,6 +2147,3 @@ QString QXcbWindow::windowTitle(const QXcbConnection *conn, xcb_window_t window)
 
     return QString();
 }
-
-QT_END_NAMESPACE
-

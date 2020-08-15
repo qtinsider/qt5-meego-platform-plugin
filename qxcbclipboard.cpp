@@ -49,8 +49,6 @@
 
 #include <QtCore/QDebug>
 
-QT_BEGIN_NAMESPACE
-
 #ifndef QT_NO_CLIPBOARD
 
 class QXcbClipboardMime : public QXcbMime
@@ -912,7 +910,5 @@ QByteArray QXcbClipboard::getSelection(xcb_atom_t selection, xcb_atom_t target, 
 }
 
 #endif // QT_NO_CLIPBOARD
-
-QT_END_NAMESPACE
 
 #include "qxcbclipboard.moc"

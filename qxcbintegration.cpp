@@ -82,8 +82,6 @@
 
 #include <QtCore/QFileInfo>
 
-QT_BEGIN_NAMESPACE
-
 // Find out if our parent process is gdb by looking at the 'exe' symlink under /proc,.
 // or, for older Linuxes, read out 'cmdline'.
 static bool runningUnderDebugger()
@@ -452,5 +450,3 @@ bool QXcbIntegration::nativePaintingEnabled() const
 {
     return false;
 }
-
-QT_END_NAMESPACE

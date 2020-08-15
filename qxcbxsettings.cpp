@@ -45,7 +45,6 @@
 #include <vector>
 #include <algorithm>
 
-QT_BEGIN_NAMESPACE
 /* Implementation of http://standards.freedesktop.org/xsettings-spec/xsettings-0.5.html */
 
 enum XSettingsType {
@@ -306,5 +305,3 @@ QVariant QXcbXSettings::setting(const QByteArray &property) const
     Q_D(const QXcbXSettings);
     return d->settings.value(property).value;
 }
-
-QT_END_NAMESPACE

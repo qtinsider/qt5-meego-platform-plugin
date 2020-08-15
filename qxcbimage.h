@@ -46,8 +46,6 @@
 #include <QtGui/QPixmap>
 #include <xcb/xcb_image.h>
 
-QT_BEGIN_NAMESPACE
-
 bool qt_xcb_imageFormatForVisual(QXcbConnection *connection, uint8_t depth, const xcb_visualtype_t *visual,
                                  QImage::Format *imageFormat, bool *needsRgbSwap = nullptr);
 QPixmap qt_xcb_pixmapFromXPixmap(QXcbConnection *connection, xcb_pixmap_t pixmap,
@@ -56,7 +54,5 @@ QPixmap qt_xcb_pixmapFromXPixmap(QXcbConnection *connection, xcb_pixmap_t pixmap
 xcb_pixmap_t qt_xcb_XPixmapFromBitmap(QXcbScreen *screen, const QImage &image);
 xcb_cursor_t qt_xcb_createCursorXRender(QXcbScreen *screen, const QImage &image,
                                         const QPoint &spot);
-
-QT_END_NAMESPACE
 
 #endif

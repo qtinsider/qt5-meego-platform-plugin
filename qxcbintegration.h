@@ -48,8 +48,6 @@
 
 #include <xcb/xcb.h>
 
-QT_BEGIN_NAMESPACE
-
 class QXcbConnection;
 class QAbstractEventDispatcher;
 class QXcbNativeInterface;
@@ -133,7 +131,5 @@ private:
 
     static QXcbIntegration *m_instance;
 };
-
-QT_END_NAMESPACE
 
 #endif

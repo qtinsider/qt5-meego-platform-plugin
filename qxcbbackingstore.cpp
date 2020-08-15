@@ -66,8 +66,6 @@
 
 #include <algorithm>
 
-QT_BEGIN_NAMESPACE
-
 class QXcbBackingStore;
 
 class QXcbBackingStoreImage : public QXcbObject
@@ -883,4 +881,3 @@ bool QXcbBackingStore::scroll(const QRegion &area, int dx, int dy)
     return false;
 }
 
-QT_END_NAMESPACE

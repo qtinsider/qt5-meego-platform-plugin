@@ -50,8 +50,6 @@
 
 #include <atomic>
 
-QT_BEGIN_NAMESPACE
-
 struct QXcbEventNode {
     QXcbEventNode(xcb_generic_event_t *e = nullptr)
         : event(e) { }
@@ -163,7 +161,5 @@ xcb_generic_event_t *QXcbEventQueue::peek(PeekOption option, Peeker &&peeker)
 
     return nullptr;
 }
-
-QT_END_NAMESPACE
 
 #endif

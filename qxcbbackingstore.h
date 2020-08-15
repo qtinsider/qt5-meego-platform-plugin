@@ -47,8 +47,6 @@
 
 #include "qxcbobject.h"
 
-QT_BEGIN_NAMESPACE
-
 class QXcbBackingStoreImage;
 
 class QXcbBackingStore : public QXcbObject, public QPlatformBackingStore
@@ -85,7 +83,5 @@ protected:
     QStack<QRegion> m_paintRegions;
     QImage m_rgbImage;
 };
-
-QT_END_NAMESPACE
 
 #endif

@@ -52,8 +52,6 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-
 Q_DECLARE_LOGGING_CATEGORY(lcQpaXcb)
 
 class Q_XCB_EXPORT QXcbBasicConnection : public QObject
@@ -162,7 +160,5 @@ struct QStdFreeDeleter {
     std::unique_ptr<call##_reply_t, QStdFreeDeleter>( \
         call##_reply(Q_XCB_REPLY_CONNECTION_ARG(__VA_ARGS__), call##_unchecked(__VA_ARGS__), nullptr) \
     )
-
-QT_END_NAMESPACE
 
 #endif // QXCBBASICCONNECTION_H

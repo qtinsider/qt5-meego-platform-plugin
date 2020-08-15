@@ -47,8 +47,6 @@
 #include "qxcbintegration.h"
 #include "qxcbconnection.h"
 
-QT_BEGIN_NAMESPACE
-
 class QXcbMime : public QInternalMimeData {
     Q_OBJECT
 public:
@@ -64,7 +62,5 @@ public:
     static xcb_atom_t mimeAtomForFormat(QXcbConnection *connection, const QString &format, QMetaType::Type requestedType,
                                         const QVector<xcb_atom_t> &atoms, QByteArray *requestedEncoding);
 };
-
-QT_END_NAMESPACE
 
 #endif // QXCBMIME_H

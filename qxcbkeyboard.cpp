@@ -51,8 +51,6 @@
 
 #include <xcb/xinput.h>
 
-QT_BEGIN_NAMESPACE
-
 Qt::KeyboardModifiers QXcbKeyboard::translateModifiers(int s) const
 {
     Qt::KeyboardModifiers ret = Qt::NoModifier;
@@ -955,5 +953,3 @@ void QXcbKeyboard::handleKeyReleaseEvent(const xcb_key_release_event_t *e)
 {
     handleKeyEvent(e->event, QEvent::KeyRelease, e->detail, e->state, e->time, fromSendEvent(e));
 }
-
-QT_END_NAMESPACE

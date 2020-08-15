@@ -53,8 +53,6 @@
 #include <private/qmath_p.h>
 #include <QtGui/private/qhighdpiscaling_p.h>
 
-QT_BEGIN_NAMESPACE
-
 QXcbVirtualDesktop::QXcbVirtualDesktop(QXcbConnection *connection, xcb_screen_t *screen, int number)
     : QXcbObject(connection)
     , m_screen(screen)
@@ -923,5 +921,3 @@ QDebug operator<<(QDebug debug, const QXcbScreen *screen)
     debug << ')';
     return debug;
 }
-
-QT_END_NAMESPACE

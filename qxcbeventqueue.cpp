@@ -45,8 +45,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QDebug>
 
-QT_BEGIN_NAMESPACE
-
 static QBasicMutex qAppExiting;
 static bool dispatcherOwnerDestructing = false;
 
@@ -396,5 +394,3 @@ bool QXcbEventQueue::isCloseConnectionEvent(const xcb_generic_event_t *event)
     }
     return m_closeConnectionDetected;
 }
-
-QT_END_NAMESPACE

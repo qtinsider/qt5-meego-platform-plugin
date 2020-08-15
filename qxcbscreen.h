@@ -53,8 +53,6 @@
 
 #include <private/qfontengine_p.h>
 
-QT_BEGIN_NAMESPACE
-
 class QXcbConnection;
 class QXcbCursor;
 class QXcbXSettings;
@@ -159,7 +157,7 @@ public:
     QImage::Format format() const override;
     QSizeF physicalSize() const override { return m_sizeMillimeters; }
     QDpi logicalDpi() const override;
-    QDpi logicalBaseDpi() const override { return QDpi(96, 96); };
+    QDpi logicalBaseDpi() const override { return QDpi(96, 96); }
     QPlatformCursor *cursor() const override;
     qreal refreshRate() const override { return m_refreshRate; }
     Qt::ScreenOrientation orientation() const override { return m_orientation; }
@@ -229,7 +227,5 @@ private:
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QXcbScreen *);
 #endif
-
-QT_END_NAMESPACE
 
 #endif

@@ -52,8 +52,6 @@
 
 #include <QEvent>
 
-QT_BEGIN_NAMESPACE
-
 class QXcbKeyboard : public QXcbObject
 {
 public:
@@ -135,7 +133,5 @@ private:
     bool m_superAsMeta = false;
     bool m_hyperAsMeta = false;
 };
-
-QT_END_NAMESPACE
 
 #endif

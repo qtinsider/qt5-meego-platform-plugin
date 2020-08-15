@@ -66,7 +66,7 @@ HEADERS = \
         qxcbatom.h \
         qxcbsessionmanager.h
 
-QMAKE_USE += xkbcommon xkbcommon_x11
+QMAKE_USE += xcb_xlib xkbcommon xkbcommon_x11
 
 PLUGIN_TYPE = platforms
 PLUGIN_CLASS_NAME = MeegoIntegrationPlugin

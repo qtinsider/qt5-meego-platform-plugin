@@ -47,8 +47,6 @@
 
 #include <QtCore/QObject>
 
-QT_BEGIN_NAMESPACE
-
 #ifndef QT_NO_CLIPBOARD
 
 class QXcbConnection;
@@ -146,7 +144,5 @@ private:
 };
 
 #endif // QT_NO_CLIPBOARD
-
-QT_END_NAMESPACE
 
 #endif // QXCBCLIPBOARD_H

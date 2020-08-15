@@ -42,8 +42,6 @@
 
 #include "qxcbscreen.h"
 
-QT_BEGIN_NAMESPACE
-
 class QXcbXSettingsPrivate;
 
 class QXcbXSettings : public QXcbWindowEventListener
@@ -65,7 +63,5 @@ public:
 private:
     QXcbXSettingsPrivate *d_ptr;
 };
-
-QT_END_NAMESPACE
 
 #endif // QXCBXSETTINGS_H

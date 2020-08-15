@@ -43,8 +43,6 @@
 
 #include <qpa/qwindowsysteminterface.h>
 
-QT_BEGIN_NAMESPACE
-
 QXcbUnixEventDispatcher::QXcbUnixEventDispatcher(QXcbConnection *connection, QObject *parent)
     : QEventDispatcherUNIX(parent)
     , m_connection(connection)
@@ -158,5 +156,3 @@ QAbstractEventDispatcher *QXcbEventDispatcher::createEventDispatcher(QXcbConnect
         return new QXcbUnixEventDispatcher(connection);
     }
 }
-
-QT_END_NAMESPACE

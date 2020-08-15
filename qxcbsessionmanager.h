@@ -54,8 +54,6 @@
 
 #ifndef QT_NO_SESSIONMANAGER
 
-QT_BEGIN_NAMESPACE
-
 class QEventLoop;
 
 class QXcbSessionManager : public QPlatformSessionManager
@@ -86,8 +84,6 @@ public:
 private:
     QEventLoop *m_eventLoop;
 };
-
-QT_END_NAMESPACE
 
 #endif //QT_NO_SESSIONMANAGER
 

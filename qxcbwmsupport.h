@@ -43,8 +43,6 @@
 #include "qxcbconnection.h"
 #include <qvector.h>
 
-QT_BEGIN_NAMESPACE
-
 class QXcbWMSupport : public QXcbObject
 {
 public:
@@ -62,7 +60,5 @@ private:
     QVector<xcb_atom_t> net_wm_atoms;
     QVector<xcb_window_t> net_virtual_roots;
 };
-
-QT_END_NAMESPACE
 
 #endif

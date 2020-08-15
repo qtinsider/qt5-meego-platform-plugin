@@ -42,8 +42,6 @@
 
 #include <qdebug.h>
 
-QT_BEGIN_NAMESPACE
-
 QXcbWMSupport::QXcbWMSupport(QXcbConnection *c)
     : QXcbObject(c)
 {
@@ -125,5 +123,3 @@ void QXcbWMSupport::updateVirtualRoots()
     qDebug("======== updateVirtualRoots");
 #endif
 }
-
-QT_END_NAMESPACE

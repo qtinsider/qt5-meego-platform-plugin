@@ -56,8 +56,6 @@
 #include "qxcbeventqueue.h"
 #include "qxcbconnection_basic.h"
 
-QT_BEGIN_NAMESPACE
-
 Q_DECLARE_LOGGING_CATEGORY(lcQpaXInput)
 Q_DECLARE_LOGGING_CATEGORY(lcQpaXInputDevices)
 Q_DECLARE_LOGGING_CATEGORY(lcQpaXInputEvents)
@@ -291,7 +289,5 @@ private:
 // unrelated memory.
 template <typename T>
 struct alignas(32) q_padded_xcb_event : T { };
-
-QT_END_NAMESPACE
 
 #endif

@@ -51,8 +51,6 @@
 
 #include <QtPlatformHeaders/qxcbwindowfunctions.h>
 
-QT_BEGIN_NAMESPACE
-
 class QXcbScreen;
 class QXcbSyncWindowRequest;
 
@@ -253,8 +251,6 @@ protected:
 };
 
 QVector<xcb_rectangle_t> qRegionToXcbRectangleList(const QRegion &region);
-
-QT_END_NAMESPACE
 
 Q_DECLARE_METATYPE(QXcbWindow*)
 

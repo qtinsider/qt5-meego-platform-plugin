@@ -48,8 +48,6 @@
 #include "qxcbexport.h"
 #include "qxcbconnection.h"
 
-QT_BEGIN_NAMESPACE
-
 class QXcbScreen;
 
 class Q_XCB_EXPORT QXcbNativeInterface : public QPlatformNativeInterface
@@ -125,8 +123,6 @@ public:
 private:
     const QByteArray m_nativeEventType = QByteArrayLiteral("xcb_generic_event_t");
 
-    xcb_atom_t m_sysTraySelectionAtom = XCB_ATOM_NONE;
-
     static QXcbScreen *qPlatformScreenForWindow(QWindow *window);
 
     NativeResourceForIntegrationFunction handlerNativeResourceFunctionForIntegration(const QByteArray &resource) const;
@@ -141,7 +137,5 @@ private:
     void *handlerNativeResourceForWindow(const QByteArray &resource, QWindow *window) const;
     void *handlerNativeResourceForBackingStore(const QByteArray &resource, QBackingStore *backingStore) const;
 };
-
-QT_END_NAMESPACE
 
 #endif // QXCBNATIVEINTERFACE_H

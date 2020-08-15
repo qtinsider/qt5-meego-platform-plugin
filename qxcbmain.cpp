@@ -40,8 +40,6 @@
 #include <qpa/qplatformintegrationplugin.h>
 #include "qxcbintegration.h"
 
-QT_BEGIN_NAMESPACE
-
 class QXcbIntegrationPlugin : public QPlatformIntegrationPlugin
 {
    Q_OBJECT
@@ -62,7 +60,5 @@ QPlatformIntegration* QXcbIntegrationPlugin::create(const QString& system, const
     }
     return nullptr;
 }
-
-QT_END_NAMESPACE
 
 #include "qxcbmain.moc"

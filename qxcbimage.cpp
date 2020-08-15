@@ -99,8 +99,6 @@ QImage::Format imageFormatForMasks(int depth, int bits_per_pixel, int red_mask, 
 
 } // namespace
 
-QT_BEGIN_NAMESPACE
-
 bool qt_xcb_imageFormatForVisual(QXcbConnection *connection, uint8_t depth, const xcb_visualtype_t *visual,
                                  QImage::Format *imageFormat, bool *needsRgbSwap)
 {
@@ -276,5 +274,3 @@ xcb_cursor_t qt_xcb_createCursorXRender(QXcbScreen *screen, const QImage &image,
     xcb_free_pixmap(conn, pix);
     return cursor;
 }
-
-QT_END_NAMESPACE

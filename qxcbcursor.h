@@ -45,8 +45,6 @@
 
 #include <QtCore/QCache>
 
-QT_BEGIN_NAMESPACE
-
 #ifndef QT_NO_CURSOR
 
 struct QXcbCursorCacheKey
@@ -123,7 +121,5 @@ private:
 #endif
     bool m_gtkCursorThemeInitialized;
 };
-
-QT_END_NAMESPACE
 
 #endif

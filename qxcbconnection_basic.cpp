@@ -57,8 +57,6 @@
 #include <X11/Xutil.h>
 #undef register
 
-QT_BEGIN_NAMESPACE
-
 Q_LOGGING_CATEGORY(lcQpaXcb, "qt.qpa.xcb")
 
 static const char * const xcbConnectionErrors[] = {
@@ -405,5 +403,3 @@ void QXcbBasicConnection::initializeXKB()
     m_hasXkb = true;
     m_xkbFirstEvent = reply->first_event;
 }
-
-QT_END_NAMESPACE

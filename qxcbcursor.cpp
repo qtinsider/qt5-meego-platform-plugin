@@ -53,8 +53,6 @@
 #include <xcb/xfixes.h>
 #include <xcb/xcb_image.h>
 
-QT_BEGIN_NAMESPACE
-
 typedef int (*PtrXcursorLibraryLoadCursor)(void *, const char *);
 typedef char *(*PtrXcursorLibraryGetTheme)(void *);
 typedef int (*PtrXcursorLibrarySetTheme)(void *, const char *);
@@ -671,5 +669,3 @@ void QXcbCursor::setPos(const QPoint &pos)
     xcb_warp_pointer(xcb_connection(), XCB_NONE, virtualDesktop->root(), 0, 0, 0, 0, pos.x(), pos.y());
     xcb_flush(xcb_connection());
 }
-
-QT_END_NAMESPACE

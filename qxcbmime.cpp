@@ -44,8 +44,6 @@
 #include <QtCore/QBuffer>
 #include <qdebug.h>
 
-QT_BEGIN_NAMESPACE
-
 QXcbMime::QXcbMime()
     : QInternalMimeData()
 { }
@@ -317,5 +315,3 @@ xcb_atom_t QXcbMime::mimeAtomForFormat(QXcbConnection *connection, const QString
 
     return 0;
 }
-
-QT_END_NAMESPACE

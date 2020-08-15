@@ -59,8 +59,6 @@
 
 #include <algorithm>
 
-QT_BEGIN_NAMESPACE
-
 // return QXcbNativeInterface::ResourceType for the key.
 static int resourceType(const QByteArray &key)
 {
@@ -591,5 +589,3 @@ QString QXcbNativeInterface::dumpNativeWindows(WId root) const
 {
     return dumpConnectionNativeWindows(QXcbIntegration::instance()->defaultConnection(), root);
 }
-
-QT_END_NAMESPACE
