@@ -1,8 +1,7 @@
 #
 # Statically compile in code for
 # libxcb-fixes, libxcb-randr, libxcb-shm, libxcb-sync, libxcb-image,
-# libxcb-keysyms, libxcb-icccm, libxcb-renderutil, libxcb-xkb,
-# libxcb-xinerama, libxcb-xinput
+# libxcb-icccm, libxcb-renderutil, libxcb-xinput
 #
 TEMPLATE = lib
 TARGET = xcb-static
@@ -32,8 +31,6 @@ SOURCES += \
     $$LIBXCB_DIR/sync.c \
     $$LIBXCB_DIR/render.c \
     $$LIBXCB_DIR/shape.c \
-    $$LIBXCB_DIR/xkb.c \
-    $$LIBXCB_DIR/xinerama.c \
     $$LIBXCB_DIR/xinput.c
 
 #
@@ -52,13 +49,6 @@ SOURCES += \
 XCB_IMAGE_DIR = $$XCB_DIR/xcb-util-image
 
 SOURCES += $$XCB_IMAGE_DIR/xcb_image.c
-
-#
-# xcb-util-keysyms
-#
-XCB_KEYSYMS_DIR = $$XCB_DIR/xcb-util-keysyms
-
-SOURCES += $$XCB_KEYSYMS_DIR/keysyms.c
 
 #
 # xcb-util-renderutil

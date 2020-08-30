@@ -8,68 +8,58 @@ DEFINES += QT_NO_FOREACH
 QT += \
     core-private gui-private \
     service_support-private theme_support-private \
-    fontdatabase_support-private xkbcommon_support-private
+    fontdatabase_support-private
 
-qtHaveModule(linuxaccessibility_support-private): \
-    QT += linuxaccessibility_support-private
-
-qtConfig(glib) : QMAKE_USE_PRIVATE += glib
+QMAKE_USE_PRIVATE += glib
 
 XCB_LIBDIR = $$PWD/xcb
 INCLUDEPATH += $$XCB_LIBDIR/include $$XCB_LIBDIR/sysinclude
 INCLUDEPATH += $$XCB_LIBDIR/include/xcb
 
-LIBS += $$OUT_PWD/xcb/libxcb-static.a
+LIBS += $$OUT_PWD/xcb/libxcb-static.a /opt/QtSDK/Madde/sysroots/harmattan_sysroot_10.2011.34-1_slim/usr/local/lib/libxcb.a # TODO: Remove
 
 SOURCES = \
-        qxcbmain.cpp \
-        qxcbclipboard.cpp \
-        qxcbconnection.cpp \
-        qxcbintegration.cpp \
-        qxcbkeyboard.cpp \
-        qxcbmime.cpp \
-        qxcbscreen.cpp \
-        qxcbwindow.cpp \
-        qxcbbackingstore.cpp \
-        qxcbwmsupport.cpp \
-        qxcbnativeinterface.cpp \
-        qxcbcursor.cpp \
-        qxcbimage.cpp \
-        qxcbxsettings.cpp \
-        qxcbeventqueue.cpp \
-        qxcbeventdispatcher.cpp \
-        qxcbconnection_basic.cpp \
-        qxcbconnection_xi2.cpp \
-        qxcbconnection_screens.cpp \
-        qxcbatom.cpp \
-        qxcbsessionmanager.cpp
+        main.cpp \
+        meventdispatcher.cpp \
+        mplatformbackingstore.cpp \
+        mplatformclipboard.cpp \
+        mplatformintegration.cpp \
+        mplatformnativeinterface.cpp \
+        mplatformscreen.cpp \
+        mplatformsessionmanager.cpp \
+        mplatformwindow.cpp \
+        xcbatom.cpp \
+        xcbconnection.cpp \
+        xcbconnection_basic.cpp \
+        xcbconnection_xi2.cpp \
+        xcbeventqueue.cpp \
+        xcbimage.cpp \
+        xcbmime.cpp \
+        xcbwmsupport.cpp
 
 HEADERS = \
-        qxcbclipboard.h \
-        qxcbconnection.h \
-        qxcbintegration.h \
-        qxcbkeyboard.h \
-        qxcbmime.h \
-        qxcbexport.h \
-        qxcbobject.h \
-        qxcbscreen.h \
-        qxcbwindow.h \
-        qxcbbackingstore.h \
-        qxcbwmsupport.h \
-        qxcbnativeinterface.h \
-        qxcbcursor.h \
-        qxcbimage.h \
-        qxcbxsettings.h \
-        qxcbeventqueue.h \
-        qxcbeventdispatcher.h \
-        qxcbconnection_basic.h \
-        qxcbatom.h \
-        qxcbsessionmanager.h
+        meventdispatcher.h \
+        mexport.h \
+        mplatformbackingstore.h \
+        mplatformclipboard.h \
+        mplatformintegration.h \
+        mplatformnativeinterface.h \
+        mplatformscreen.h \
+        mplatformsessionmanager.h \
+        mplatformwindow.h \
+        xcbatom.h \
+        xcbconnection.h \
+        xcbconnection_basic.h \
+        xcbeventqueue.h \
+        xcbimage.h \
+        xcbmime.h \
+        xcbobject.h \
+        xcbwmsupport.h
 
-QMAKE_USE += xcb_xlib xkbcommon xkbcommon_x11
+QMAKE_USE += xcb_xlib
 
 PLUGIN_TYPE = platforms
 PLUGIN_CLASS_NAME = MeegoIntegrationPlugin
 
 DISTFILES += \
-    meego.json
+    LICENSE README meego.json

@@ -1,7 +1,21 @@
-Requires libxcb >= 1.9.1.
+# qt5-meego-platform-plugin
 
-REDUCING RUNTIME DEPENDENCIES
+qt5-meego-platform-plugin is the Qt platform integration plugin for Nokia N9
 
-The '-qt-xcb' configure option can be used to get rid of most xcb- dependencies. Only libxcb will
-still be linked dynamically, since it will be most likely be pulled in via other dependencies anyway.
-This should allow for binaries that are portable across most modern Linux distributions.
+## Dependencies
+
+### Build dependencies
+
+* pkg-config
+* xcb
+* dbus-1
+* xrender
+* xi
+* sm
+* fontconfig
+* freetype6
+* glib2.0
+
+## License
+
+qt5-meego-platform-plugin is licensed under [GPLv3](LICENSE)
