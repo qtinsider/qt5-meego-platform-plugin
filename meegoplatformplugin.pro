@@ -8,7 +8,7 @@ DEFINES += QT_NO_FOREACH
 QT += \
     core-private gui-private \
     service_support-private theme_support-private \
-    fontdatabase_support-private
+    fontdatabase_support-private dbus
 
 QMAKE_USE_PRIVATE += glib
 
@@ -20,6 +20,7 @@ LIBS += $$OUT_PWD/xcb/libxcb-static.a /opt/QtSDK/Madde/sysroots/harmattan_sysroo
 
 SOURCES = \
         main.cpp \
+        mcontextkitproperty.cpp \
         meventdispatcher.cpp \
         mplatformbackingstore.cpp \
         mplatformclipboard.cpp \
@@ -38,8 +39,10 @@ SOURCES = \
         xcbwmsupport.cpp
 
 HEADERS = \
+        mcontextkitproperty.h \
         meventdispatcher.h \
         mexport.h \
+        morientationchangeevent_p.h \
         mplatformbackingstore.h \
         mplatformclipboard.h \
         mplatformintegration.h \

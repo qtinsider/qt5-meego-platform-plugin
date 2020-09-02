@@ -407,9 +407,7 @@ void XcbConnection::handleXcbEvent(xcb_generic_event_t *event)
         break;
     case XCB_SELECTION_REQUEST:
     {
-#if QT_CONFIG(clipboard)
         auto selectionRequest = reinterpret_cast<xcb_selection_request_event_t *>(event);
-#endif
         {
             m_clipboard->handleSelectionRequest(selectionRequest);
         }

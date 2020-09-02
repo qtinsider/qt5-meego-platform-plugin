@@ -386,7 +386,7 @@ void XcbBackingStoreImage::destroyShmSegment()
 
     {
         if (shmdt(m_shm_info.shmaddr) == -1) {
-            qCWarning(lcQpaXcb, "shmdt() failed (%d: %s) for %p",
+            qCWarning(lcQpaXcb, "shmdt() failed (%d: %s) for %s",
                       errno, strerror(errno), m_shm_info.shmaddr);
         }
         m_shm_info.shmid = 0; // unused

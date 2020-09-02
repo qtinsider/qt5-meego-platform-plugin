@@ -117,6 +117,7 @@ public:
 
         // MEEGO(TOUCH)-specific
         _MEEGOTOUCH_MINIMIZE_ANIMATION,
+        _MEEGOTOUCH_ORIENTATION_ANGLE,
 
         NAtoms
     };

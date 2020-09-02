@@ -27,6 +27,7 @@
 #include <xcb/xfixes.h>
 
 #include "xcbobject.h"
+#include "mcontextkitproperty.h"
 
 #include <private/qfontengine_p.h>
 
@@ -50,7 +51,8 @@ public:
     QSizeF physicalSize() const override;
     QDpi logicalDpi() const override;
 
-    Qt::ScreenOrientation orientation() const override { return m_orientation; }
+    Qt::ScreenOrientation nativeOrientation() const override;
+    Qt::ScreenOrientation orientation() const override;
 
     QPixmap grabWindow(WId window, int xIn, int yIn, int width, int height) const override;
 
@@ -74,7 +76,6 @@ private:
 
     QMap<xcb_visualid_t, xcb_visualtype_t> m_visuals;
     QMap<xcb_visualid_t, quint8> m_visualDepths;
-    uint16_t m_rotation = 0;
 
     QString m_outputName;
     Qt::ScreenOrientation m_orientation = Qt::PrimaryOrientation;

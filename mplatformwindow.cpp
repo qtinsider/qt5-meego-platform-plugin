@@ -52,8 +52,6 @@
 #include <X11/Xutil.h>
 #undef register
 
-#define XCOORD_MAX 16383
-
 Q_DECLARE_TYPEINFO(xcb_rectangle_t, Q_PRIMITIVE_TYPE);
 
 #undef FocusIn
@@ -112,32 +110,23 @@ void MPlatformWindow::setGeometry(const QRect &rect)
     if (newScreen != currentScreen)
         QWindowSystemInterface::handleWindowScreenChanged(window(), newScreen->QPlatformScreen::screen());
 
-    if (qt_window_private(window())->positionAutomatic) {
-        const quint32 mask = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-        const qint32 values[] = {
-            qBound<qint32>(1,           rect.width(),  XCOORD_MAX),
-            qBound<qint32>(1,           rect.height(), XCOORD_MAX),
-            };
-        xcb_configure_window(xcb_connection(), m_window, mask, reinterpret_cast<const quint32*>(values));
-     } else {
-        const quint32 mask = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-        const qint32 values[] = {
-            qBound<qint32>(-XCOORD_MAX, rect.x(),      XCOORD_MAX),
-            qBound<qint32>(-XCOORD_MAX, rect.y(),      XCOORD_MAX),
-            qBound<qint32>(1,           rect.width(),  XCOORD_MAX),
-            qBound<qint32>(1,           rect.height(), XCOORD_MAX),
-            };
-        xcb_configure_window(xcb_connection(), m_window, mask, reinterpret_cast<const quint32*>(values));
-        if (window()->parent() && !window()->transientParent()) {
-            // Wait for server reply for parented windows to ensure that a few window
-            // moves will come as a one event. This is important when native widget is
-            // moved a few times in X and Y directions causing native scroll. Widget
-            // must get single event to not trigger unwanted widget position changes
-            // and then expose events causing backingstore flushes with incorrect
-            // offset causing image crruption.
-            connection()->sync();
-        }
-    }
+    const quint32 mask = XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+    const qint32 values[] = {
+        rect.x(),
+        rect.y(),
+        rect.width(),
+        rect.height(),
+     };
+     xcb_configure_window(xcb_connection(), m_window, mask, reinterpret_cast<const quint32*>(values));
+     if (window()->parent() && !window()->transientParent()) {
+         // Wait for server reply for parented windows to ensure that a few window
+         // moves will come as a one event. This is important when native widget is
+         // moved a few times in X and Y directions causing native scroll. Widget
+         // must get single event to not trigger unwanted widget position changes
+         // and then expose events causing backingstore flushes with incorrect
+         // offset causing image crruption.
+         connection()->sync();
+     }
 
     xcb_flush(xcb_connection());
 }
@@ -195,6 +184,21 @@ void MPlatformWindow::setParent(const QPlatformWindow *parent)
         xcb_parent_id = xcbScreen()->root();
     }
     xcb_reparent_window(xcb_connection(), xcb_window(), xcb_parent_id, topLeft.x(), topLeft.y());
+}
+
+void MPlatformWindow::handleContentOrientationChange(Qt::ScreenOrientation orientation)
+{
+    int angle = 0;
+    switch (orientation) {
+    case Qt::PortraitOrientation: angle = 270; break;
+    case Qt::LandscapeOrientation: angle = 0; break;
+    case Qt::InvertedPortraitOrientation: angle = 90; break;
+    case Qt::InvertedLandscapeOrientation: angle = 180; break;
+    case Qt::PrimaryOrientation: break;
+    }
+    xcb_change_property(xcb_connection(), XCB_PROP_MODE_REPLACE, m_window,
+                        atom(XcbAtom::_MEEGOTOUCH_ORIENTATION_ANGLE), XCB_ATOM_CARDINAL, 32,
+                        1, &angle);
 }
 
 void MPlatformWindow::setVisible(bool visible)
@@ -412,33 +416,14 @@ void MPlatformWindow::create()
         ? QHighDpi::toNativeLocalPosition(window()->geometry(), platformScreen)
         : QHighDpi::toNativePixels(window()->geometry(), platformScreen);
 
-    if (type == Qt::Desktop) {
-        m_window = platformScreen->root();
-        m_depth = platformScreen->screen()->root_depth;
-        m_visualId = platformScreen->screen()->root_visual;
-        const xcb_visualtype_t *visual = nullptr;
-        if (connection()->hasDefaultVisualId()) {
-            visual = platformScreen->visualForId(connection()->defaultVisualId());
-            if (visual)
-                m_visualId = connection()->defaultVisualId();
-            if (!visual)
-                qWarning("Could not use default visual id. Falling back to root_visual for screen.");
-        }
-        if (!visual)
-            visual = platformScreen->visualForId(m_visualId);
-        setImageFormatForVisual(visual);
-        connection()->addWindowEventListener(m_window, this);
-        return;
-    }
-
     QPlatformWindow::setGeometry(rect);
 
     if (platformScreen != currentScreen)
         QWindowSystemInterface::handleWindowScreenChanged(window(), platformScreen->QPlatformScreen::screen());
 
     if (rect.width() > 0 || rect.height() > 0) {
-        rect.setWidth(qBound(1, rect.width(), XCOORD_MAX));
-        rect.setHeight(qBound(1, rect.height(), XCOORD_MAX));
+        rect.setWidth(rect.width());
+        rect.setHeight(rect.height());
     }
 
     xcb_window_t xcb_parent_id = platformScreen->root();
@@ -589,7 +574,7 @@ void MPlatformWindow::create()
     xcb_change_property(xcb_connection(), XCB_PROP_MODE_REPLACE, m_window,
                         atom(XcbAtom::_XEMBED_INFO),
                         atom(XcbAtom::_XEMBED_INFO),
-                        32, 2, (void *)data);
+                        32, 2, (void *) data);
 
     connection()->xi2SelectDeviceEvents(m_window);
 
@@ -842,7 +827,7 @@ void MPlatformWindow::updateNetWmUserTime(xcb_timestamp_t timestamp)
                               XCB_WINDOW_CLASS_INPUT_OUTPUT,   // window class
                               m_visualId,                      // visual
                               0,                               // value mask
-                              nullptr);                              // value list
+                              nullptr);                        // value list
             wid = m_netWmUserTimeWindow;
             xcb_change_property(xcb_connection(), XCB_PROP_MODE_REPLACE, m_window, atom(XcbAtom::_NET_WM_USER_TIME_WINDOW),
                                 XCB_ATOM_WINDOW, 32, 1, &m_netWmUserTimeWindow);
@@ -981,9 +966,7 @@ void MPlatformWindow::handleConfigureNotifyEvent(const xcb_configure_notify_even
 
     // Send the synthetic expose event on resize only when the window is shrinked,
     // because the "XCB_GRAVITY_NORTH_WEST" flag doesn't send it automatically.
-    if (!m_oldWindowSize.isEmpty()
-            && (actualGeometry.width() < m_oldWindowSize.width()
-                || actualGeometry.height() < m_oldWindowSize.height())) {
+    if (!m_oldWindowSize.isEmpty()) {
         QWindowSystemInterface::handleExposeEvent(window(), QRegion(0, 0, actualGeometry.width(), actualGeometry.height()));
     }
     m_oldWindowSize = actualGeometry.size();

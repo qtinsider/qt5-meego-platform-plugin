@@ -17,8 +17,10 @@
  */
 
 #include "mplatformscreen.h"
+
 #include "mplatformwindow.h"
 #include "xcbimage.h"
+
 #include "qnamespace.h"
 
 #include <cstdio>
@@ -112,6 +114,17 @@ QDpi MPlatformScreen::logicalDpi() const
 
     return QDpi(Q_MM_PER_INCH * size.width() / sizeMillimeters.width(),
                 Q_MM_PER_INCH * size.height() / sizeMillimeters.height());
+}
+
+Qt::ScreenOrientation MPlatformScreen::nativeOrientation() const
+{
+    return screen()->width_in_pixels >= screen()->height_in_pixels ? Qt::LandscapeOrientation
+                                                                   : Qt::PortraitOrientation;
+}
+
+Qt::ScreenOrientation MPlatformScreen::orientation() const
+{
+    return m_orientation;
 }
 
 static inline bool translate(xcb_connection_t *connection, xcb_window_t child, xcb_window_t parent,
@@ -219,7 +232,7 @@ void MPlatformScreen::updateProperties()
     }
     auto output = Q_XCB_REPLY_UNCHECKED(xcb_randr_get_output_info,
                                         xcb_connection(), outputs[0], resources->config_timestamp);
-    m_outputName = QString::fromUtf8((const char*)xcb_randr_get_output_info_name(output.get()),
+    m_outputName = QString::fromUtf8((const char *) xcb_randr_get_output_info_name(output.get()),
                                      xcb_randr_get_output_info_name_length(output.get()));
 }
 
@@ -340,7 +353,7 @@ QDebug operator<<(QDebug debug, const MPlatformScreen *screen)
 {
     const QDebugStateSaver saver(debug);
     debug.nospace();
-    debug << "MScreen(" << (const void *)screen;
+    debug << "MPlatformScreen(" << (const void *)screen;
     if (screen) {
         debug << Qt::fixed << qSetRealNumberPrecision(1);
         debug << ", name=" << screen->name();
@@ -359,3 +372,5 @@ QDebug operator<<(QDebug debug, const MPlatformScreen *screen)
     debug << ')';
     return debug;
 }
+
+

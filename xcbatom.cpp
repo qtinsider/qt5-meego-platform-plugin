@@ -115,6 +115,7 @@ static const char *xcb_atomnames = {
     "Max Contacts\0"
 
     "_MEEGOTOUCH_MINIMIZE_ANIMATION\0"
+    "_MEEGOTOUCH_ORIENTATION_ANGLE\0"
     // \0\0 terminates loop.
 };
 
